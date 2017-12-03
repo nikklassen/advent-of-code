@@ -18,7 +18,7 @@ parse_int:
     mov rdi, 1
 
     .read_char:
-    mov cl, byte [rbx]
+    movzx rcx, byte [rbx]
     cmp rcx, '0'
     jl .done
     cmp rcx, '9'
