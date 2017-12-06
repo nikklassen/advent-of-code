@@ -1,0 +1,31 @@
+#!/bin/bash
+session=`cat "$(dirname $0)/.session"`
+level=1
+while getopts ":d:2" opt; do
+    case $opt in
+        2) level=2 ;;
+        d) day="$OPTARG" ;;
+    esac
+done
+shift $((OPTIND-1))
+answer="$1"
+
+if [[ -z $day ]]; then
+    echo "Day is required"
+    exit 1
+elif [[ -z $answer ]]; then
+    echo "Answer is required"
+    exit 1
+fi
+
+resp=`curl -s "http://adventofcode.com/2017/day/$day/answer" -H "Content-Type: application/x-www-form-urlencoded" -H "Cookie: session=$session" --data "level=$level&answer=$answer"`
+if [[ $resp == *"That's not the right answer"* ]]; then
+    echo "Incorrect"
+elif [[ $resp == *"That's the right answer!"* ]]; then
+    echo "Correct!"
+elif [[ $resp == *"You gave an answer too recently"* ]]; then
+    delay=`ag -o '\d+m\s+\d+s' <<< "$resp"`
+    echo "Please wait $delay"
+else
+    echo $resp
+fi
