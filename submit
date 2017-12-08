@@ -24,8 +24,10 @@ if [[ $resp == *"That's not the right answer"* ]]; then
 elif [[ $resp == *"That's the right answer!"* ]]; then
     echo "Correct!"
 elif [[ $resp == *"You gave an answer too recently"* ]]; then
-    delay=`ag -o '\d+m\s+\d+s' <<< "$resp"`
+    delay=`ag -o '(\d+m\s+)?\d+s' <<< "$resp"`
     echo "Please wait $delay"
+elif [[ $resp == *"You don't seem to be solving the right level. Did you already complete it?"* ]]; then
+    echo "This puzzle has already been solved"
 else
     echo $resp
 fi
