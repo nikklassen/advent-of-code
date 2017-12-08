@@ -10,7 +10,7 @@ My solutions to Advent of Code 2017. One language per day. My list of planned (a
 - ~Perl~
 - ~PHP~
 - Elixir
-- Kotlin
+- ~Kotlin~
 - ~Matlab~
 - ~R~
 - ~Julia~
