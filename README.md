@@ -14,7 +14,7 @@ My solutions to Advent of Code 2017. One language per day. My list of planned (a
 - ~Matlab~
 - ~R~
 - ~Julia~
-- OCaml
+- ~OCaml~
 
 ## Languages I know better
 - Groovy
