@@ -9,7 +9,7 @@ My solutions to Advent of Code 2017. One language per day. My list of planned (a
 - ~Bash~
 - ~Perl~
 - ~PHP~
-- Elixir
+- ~Elixir~
 - ~Kotlin~
 - ~Matlab~
 - ~R~
