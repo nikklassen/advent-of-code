@@ -17,7 +17,7 @@ My solutions to Advent of Code 2017. One language per day. My list of planned (a
 - ~OCaml~
 
 ## Languages I know better
-- Groovy
+- ~Groovy~
 - Haskell
 - Clojure
 - Common Lisp
