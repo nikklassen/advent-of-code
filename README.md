@@ -4,7 +4,7 @@ My solutions to Advent of Code 2017. One language per day. My list of planned (a
 
 ## Languages I sort of know/don't know/aren't good for this
 - ~x86 (nasm)~
-- Scala
+- ~Scala~
 - ~Go~
 - ~Bash~
 - ~Perl~
