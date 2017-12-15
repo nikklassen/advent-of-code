@@ -20,7 +20,7 @@ My solutions to Advent of Code 2017. One language per day. My list of planned (a
 - ~Groovy~
 - Haskell
 - ~Clojure~
-- Common Lisp
+- ~Common Lisp~
 - F#
 - C
 
