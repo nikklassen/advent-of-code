@@ -19,7 +19,7 @@ My solutions to Advent of Code 2017. One language per day. My list of planned (a
 ## Languages I know better
 - ~Groovy~
 - Haskell
-- Clojure
+- ~Clojure~
 - Common Lisp
 - F#
 - C
