@@ -21,7 +21,7 @@ My solutions to Advent of Code 2017. One language per day. My list of planned (a
 - Haskell
 - ~Clojure~
 - ~Common Lisp~
-- F#
+- ~F#~
 - C
 
 ## Languages I'm confortable with
