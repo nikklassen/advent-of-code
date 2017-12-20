@@ -22,7 +22,7 @@ My solutions to Advent of Code 2017. One language per day. My list of planned (a
 - ~Clojure~
 - ~Common Lisp~
 - ~F#~
-- C
+- ~C~
 
 ## Languages I'm confortable with
 - ~Ruby~
