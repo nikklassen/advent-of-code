@@ -30,5 +30,5 @@ My solutions to Advent of Code 2017. One language per day. My list of planned (a
 - C++
 - Java
 - ~C#~
-- Rust
+- ~Rust~
 - ~Javascript~
