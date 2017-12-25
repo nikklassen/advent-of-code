@@ -27,7 +27,7 @@ My solutions to Advent of Code 2017. One language per day. My list of planned (a
 ## Languages I'm confortable with
 - ~Ruby~
 - ~Python~
-- C++
+- ~C++~
 - Java
 - ~C#~
 - ~Rust~
