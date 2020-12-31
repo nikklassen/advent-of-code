@@ -7,7 +7,7 @@ use regex::Regex;
 use crate::utils;
 
 fn read_passports() -> Vec<HashMap<String, String>> {
-    let input = utils::read_input_lines("day04/input");
+    let input = utils::read_input_lines("day04");
     input
         .iter()
         .group_by(|line| line.as_str() != "")

@@ -11,7 +11,7 @@ struct PwdEntry {
 
 fn read_entries() -> Vec<PwdEntry> {
     let re = Regex::new(r"(\d+)-(\d+) ([a-z]): ([a-z]+)").unwrap();
-    let input = utils::read_input_lines("day02/input");
+    let input = utils::read_input_lines("day02");
     input
         .iter()
         .map(|line| {

@@ -3,7 +3,7 @@ use crate::utils;
 use std::iter;
 
 fn read_map() -> Vec<Vec<bool>> {
-    let input = utils::read_input_lines("day03/input");
+    let input = utils::read_input_lines("day03");
     input
         .iter()
         .map(|line| line.chars().map(|c| c == '#').collect())

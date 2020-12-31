@@ -1,7 +1,7 @@
 use crate::utils;
 
 fn read_vals() -> Vec<i32> {
-    let input = utils::read_input_lines("day01/input");
+    let input = utils::read_input_lines("day01");
     input
         .iter()
         .map(|line| line.parse().unwrap())

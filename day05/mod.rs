@@ -1,7 +1,7 @@
 use crate::utils;
 
 fn read_seat_ids() -> Vec<i32> {
-    let input = utils::read_input_lines("day05/input");
+    let input = utils::read_input_lines("day05");
     input.iter().map(|line| parse_seat_id(line)).collect()
 }
 
