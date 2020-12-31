@@ -1,32 +1,25 @@
 use std::collections::HashMap;
 use std::iter::Iterator;
 
-use itertools::Itertools;
 use regex::Regex;
 
 use crate::utils;
 
 fn read_passports() -> Vec<HashMap<String, String>> {
     let input = utils::read_input_lines("day04");
-    input
-        .iter()
-        .group_by(|line| line.as_str() != "")
+    utils::group_lines(input)
         .into_iter()
-        .filter_map(|(v, lines)| {
-            if !v {
-                return None;
-            }
-            Some(
-                lines
-                    .map(|line| {
-                        line.split(' ').map(|kvp| {
-                            let parts = kvp.split(':').collect::<Vec<_>>();
-                            (parts[0].to_string(), parts[1].to_string())
-                        })
+        .map(|lines| {
+            lines
+                .iter()
+                .map(|line| {
+                    line.split(' ').map(|kvp| {
+                        let parts = kvp.split(':').collect::<Vec<_>>();
+                        (parts[0].to_string(), parts[1].to_string())
                     })
-                    .flatten()
-                    .collect(),
-            )
+                })
+                .flatten()
+                .collect()
         })
         .collect()
 }
