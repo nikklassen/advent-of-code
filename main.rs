@@ -7,7 +7,8 @@ pub mod utils;
 mod day01;
 mod day02;
 mod day03;
+mod day04;
 
 fn main() {
-    println!("{}", day03::part2());
+    println!("{}", day04::part2());
 }
