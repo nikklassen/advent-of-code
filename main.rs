@@ -1,7 +1,11 @@
-#[allow(dead_code)]
+#![allow(dead_code)]
+
+extern crate regex;
+
 mod day01;
+mod day02;
 pub mod utils;
 
 fn main() {
-    println!("{}", day01::part2());
+    println!("{}", day02::part2());
 }
