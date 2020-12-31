@@ -2,10 +2,12 @@
 
 extern crate regex;
 
-mod day01;
-mod day02;
 pub mod utils;
 
+mod day01;
+mod day02;
+mod day03;
+
 fn main() {
-    println!("{}", day02::part2());
+    println!("{}", day03::part2());
 }
