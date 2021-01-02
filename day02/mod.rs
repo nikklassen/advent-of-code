@@ -19,7 +19,7 @@ fn read_entries() -> Vec<PwdEntry> {
             PwdEntry {
                 v1: captures[1].parse().unwrap(),
                 v2: captures[2].parse().unwrap(),
-                c: captures[3].chars().nth(0).unwrap(),
+                c: captures[3].chars().next().unwrap(),
                 pwd: captures[4].to_string(),
             }
         })

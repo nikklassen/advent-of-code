@@ -10,7 +10,7 @@ fn read_map() -> Vec<Vec<bool>> {
         .collect()
 }
 
-fn slide(m: &Vec<Vec<bool>>, slope: (usize, usize)) -> usize {
+fn slide(m: &[Vec<bool>], slope: (usize, usize)) -> usize {
     let height = m.len();
     let width = m[0].len();
     iter::successors(Some((0, 0)), move |pos| {
@@ -33,8 +33,5 @@ pub fn part1() -> usize {
 pub fn part2() -> usize {
     let m = read_map();
     let slopes = vec![(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];
-    slopes
-        .iter()
-        .map(|&slope| slide(&m, slope))
-        .fold(1, |acc, v| acc * v)
+    slopes.iter().map(|&slope| slide(&m, slope)).product()
 }

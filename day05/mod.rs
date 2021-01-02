@@ -23,7 +23,7 @@ pub fn part1() -> i32 {
 
 pub fn part2() -> i32 {
     let mut seat_ids = read_seat_ids();
-    seat_ids.sort();
+    seat_ids.sort_unstable();
     for i in 1..(seat_ids.len()) {
         if seat_ids[i] != seat_ids[i - 1] + 1 {
             assert!(seat_ids[i] == seat_ids[i - 1] + 2);

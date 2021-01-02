@@ -8,7 +8,7 @@ fn read_vals() -> Vec<i32> {
         .collect::<Vec<i32>>()
 }
 
-fn two_sum_map(vals: &Vec<i32>) -> Vec<Vec<i32>> {
+fn two_sum_map(vals: &[i32]) -> Vec<Vec<i32>> {
     (0..vals.len())
         .map(|i| {
             (0..vals.len())
@@ -39,7 +39,7 @@ pub fn part2() -> i32 {
     let vals = read_vals();
     let m = two_sum_map(&vals);
     for k in 2..vals.len() {
-        let v = m.iter().enumerate().find_map(|(i, row)| {
+        if let Some(v) = m.iter().enumerate().find_map(|(i, row)| {
             row.iter().enumerate().find_map(|(j, &v)| {
                 if v > 0 && v + vals[k] == 2020 {
                     Some(vals[i] * vals[j] * vals[k])
@@ -47,9 +47,8 @@ pub fn part2() -> i32 {
                     None
                 }
             })
-        });
-        if v.is_some() {
-            return v.unwrap();
+        }) {
+            return v;
         }
     }
     unreachable!()
