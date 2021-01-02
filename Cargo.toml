@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 regex = "1.4.2"
 itertools = "0.10.0"
+lazy_static = "1.4.0"
 
 [[bin]]
 name = "aoc20"
