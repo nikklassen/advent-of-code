@@ -8,37 +8,35 @@ fn read_nums() -> Vec<usize> {
 }
 
 pub fn find_invalid(nums: &[usize]) -> usize {
-    let mut sums = [[0; 25]; 25];
     let mut sum_locs = HashMap::<usize, HashSet<(usize, usize)>>::new();
     for i in 0..25 {
-        for j in 0..25 {
-            if i == j {
-                continue;
-            }
-            let sum = nums[i] + nums[j];
-            sums[i][j] = sum;
-            let locs = sum_locs.entry(sum).or_default();
-            locs.insert((i, j));
+        for j in (i + 1)..25 {
+            sum_locs
+                .entry(nums[i] + nums[j])
+                .or_default()
+                .insert((i, j));
         }
     }
-    for k in 25..nums.len() {
-        let current_sum = nums[k];
-        if !sum_locs.contains_key(&current_sum) {
-            return current_sum;
+    for end in 25..nums.len() {
+        let target = nums[end];
+        if !sum_locs.contains_key(&target) {
+            return target;
         }
-        let prev = nums[k - 25];
-        let j = k % 25;
-        for i in 0..25 {
+        let j = end % 25;
+        for locs in sum_locs.values_mut() {
+            locs.retain(|loc| loc.0 != j && loc.1 != j);
+        }
+        sum_locs.retain(|_, locs| !locs.is_empty());
+
+        for cursor in 0..25 {
+            let i = end - 25 + cursor;
             if i == j {
                 continue;
             }
-            sum_locs.get_mut(&sums[i][j]).unwrap().remove(&(i, j));
-            sums[i][j] = sums[i][j] - prev + current_sum;
-            sum_locs.entry(sums[i][j]).or_default().insert((i, j));
-
-            sum_locs.get_mut(&sums[j][i]).unwrap().remove(&(j, i));
-            sums[j][i] = sums[j][i] - prev + current_sum;
-            sum_locs.entry(sums[j][i]).or_default().insert((j, i));
+            sum_locs
+                .entry(nums[i] + nums[end])
+                .or_default()
+                .insert((i, end));
         }
     }
     unreachable!()
