@@ -13,7 +13,8 @@ mod day04;
 mod day05;
 mod day06;
 mod day07;
+mod day08;
 
 fn main() {
-    println!("{}", day07::part2());
+    println!("{}", day08::part2());
 }
