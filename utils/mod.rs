@@ -10,6 +10,7 @@ pub fn read_input_lines(dir: &str) -> Vec<String> {
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
     contents
+        .trim()
         .split('\n')
         .map(|s| s.to_string())
         .collect::<Vec<_>>()
