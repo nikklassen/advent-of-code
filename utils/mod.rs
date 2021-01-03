@@ -38,3 +38,38 @@ pub fn group_lines(lines: Vec<String>) -> Vec<Vec<String>> {
         })
         .collect()
 }
+
+pub type GridIndex = (usize, usize);
+
+#[derive(Clone, Copy, Eq, PartialEq, Hash)]
+pub struct GridDir(isize, isize);
+
+pub static ADJACENT_DIRS: [GridDir; 8] = [
+    GridDir(-1, -1),
+    GridDir(-1, 0),
+    GridDir(-1, 1),
+    GridDir(0, -1),
+    GridDir(0, 1),
+    GridDir(1, -1),
+    GridDir(1, 0),
+    GridDir(1, 1),
+];
+
+pub fn increment_pos<T>(grid: &[Vec<T>], pos: GridIndex, dir: GridDir) -> Option<GridIndex> {
+    if pos.0 == 0 && dir.0 < 0
+        || pos.0 == grid.len() - 1 && dir.0 > 0
+        || pos.1 == 0 && dir.1 < 0
+        || pos.1 == grid[pos.0].len() - 1 && dir.1 > 0
+    {
+        None
+    } else {
+        Some((
+            ((pos.0 as isize) + dir.0) as usize,
+            ((pos.1 as isize) + dir.1) as usize,
+        ))
+    }
+}
+
+pub fn pos_index<T>(grid: &[Vec<T>], pos: GridIndex) -> &T {
+    &grid[pos.0][pos.1]
+}
