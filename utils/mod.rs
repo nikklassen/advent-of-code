@@ -1,3 +1,4 @@
+pub use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
@@ -12,6 +13,15 @@ pub fn read_input_lines(dir: &str) -> Vec<String> {
         .split('\n')
         .map(|s| s.to_string())
         .collect::<Vec<_>>()
+}
+
+pub fn parse_input_nums<F>(dir: &str) -> Vec<F>
+where
+    F: std::str::FromStr,
+    F::Err: std::fmt::Debug,
+{
+    let input = read_input_lines(dir);
+    input.iter().map(|s| s.parse().unwrap()).collect()
 }
 
 pub fn group_lines(lines: Vec<String>) -> Vec<Vec<String>> {
