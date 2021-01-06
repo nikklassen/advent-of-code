@@ -73,3 +73,18 @@ pub fn increment_pos<T>(grid: &[Vec<T>], pos: GridIndex, dir: GridDir) -> Option
 pub fn pos_index<T>(grid: &[Vec<T>], pos: GridIndex) -> &T {
     &grid[pos.0][pos.1]
 }
+
+pub fn gcd(mut a: usize, mut b: usize) -> usize {
+    loop {
+        if b == 0 {
+            return a;
+        }
+        let tmp = b;
+        b = a % b;
+        a = tmp;
+    }
+}
+
+pub fn lcm(a: usize, b: usize) -> usize {
+    (a / gcd(a, b)) * b
+}
