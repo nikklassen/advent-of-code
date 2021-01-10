@@ -1,8 +1,10 @@
 #![allow(dead_code)]
+#![feature(test)]
 
 extern crate regex;
 #[macro_use]
 extern crate lazy_static;
+extern crate test;
 
 pub mod utils;
 

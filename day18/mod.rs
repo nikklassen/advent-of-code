@@ -118,3 +118,19 @@ pub fn part1() -> usize {
 pub fn part2() -> usize {
     solve_with_precendence(group_by_precendence)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[bench]
+    fn bench_part_1(b: &mut Bencher) {
+        b.iter(part1);
+    }
+
+    #[bench]
+    fn bench_part_2(b: &mut Bencher) {
+        b.iter(part2);
+    }
+}
