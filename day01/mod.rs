@@ -1,55 +1,77 @@
+#![allow(clippy::needless_range_loop)]
+
 use crate::utils;
 
-fn read_vals() -> Vec<i32> {
-    let input = utils::read_input_lines("day01");
-    input
-        .iter()
-        .map(|line| line.parse().unwrap())
-        .collect::<Vec<i32>>()
+pub fn part1(input: &[String]) -> usize {
+    let mut vals: Vec<usize> = utils::parse_nums(input);
+    vals.sort_unstable();
+
+    let n = vals.len();
+    for i in 0..n {
+        let vi = vals[i];
+        for j in (i + 1)..n {
+            let vj = vals[j];
+            if vi + vj == 2020 {
+                return vi * vj;
+            }
+        }
+    }
+    unreachable!();
 }
 
-fn two_sum_map(vals: &[i32]) -> Vec<Vec<i32>> {
-    (0..vals.len())
-        .map(|i| {
-            (0..vals.len())
-                .map(|j| if j > i { vals[i] + vals[j] } else { 0 })
-                .collect()
-        })
-        .collect()
-}
+pub fn part2(input: &[String]) -> usize {
+    let mut vals: Vec<usize> = utils::parse_nums(input);
+    vals.sort_unstable();
 
-pub fn part1() -> i32 {
-    let vals = read_vals();
-    let m = two_sum_map(&vals);
-    m.iter()
-        .enumerate()
-        .find_map(|(i, row)| {
-            row.iter().enumerate().find_map(|(j, &v)| {
-                if v == 2020 {
-                    Some(vals[i] * vals[j])
-                } else {
-                    None
+    let n = vals.len();
+    let target = 2020;
+    for k in 0..n {
+        let vk = vals[k];
+        for j in (k + 1)..n {
+            let vjk = vk + vals[j];
+            if vjk >= target {
+                break;
+            }
+            for i in (j + 1)..n {
+                let tot = vjk + vals[i];
+                if tot == target {
+                    return vk * vals[j] * vals[i];
                 }
-            })
-        })
-        .unwrap()
-}
-
-pub fn part2() -> i32 {
-    let vals = read_vals();
-    let m = two_sum_map(&vals);
-    for k in 2..vals.len() {
-        if let Some(v) = m.iter().enumerate().find_map(|(i, row)| {
-            row.iter().enumerate().find_map(|(j, &v)| {
-                if v > 0 && v + vals[k] == 2020 {
-                    Some(vals[i] * vals[j] * vals[k])
-                } else {
-                    None
+                if tot > target {
+                    break;
                 }
-            })
-        }) {
-            return v;
+            }
         }
     }
     unreachable!()
+}
+
+#[cfg(test)]
+mod tests {
+    lazy_static! {
+        static ref INPUT: Vec<String> = utils::read_input_lines("day01");
+    }
+
+    use super::*;
+    use test::Bencher;
+
+    #[test]
+    fn run_part1() {
+        assert_eq!(part1(&INPUT), 157059);
+    }
+
+    #[test]
+    fn run_part2() {
+        assert_eq!(part2(&INPUT), 165080960);
+    }
+
+    #[bench]
+    fn bench_part_1(b: &mut Bencher) {
+        b.iter(|| part1(&INPUT));
+    }
+
+    #[bench]
+    fn bench_part_2(b: &mut Bencher) {
+        b.iter(|| part2(&INPUT));
+    }
 }

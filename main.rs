@@ -30,11 +30,13 @@ mod day18;
 use std::time::Instant;
 
 fn main() {
+    let input = utils::read_input_lines("day18");
+
     let mut start = Instant::now();
-    println!("part1: {}", day18::part1());
+    println!("part1: {}", day01::part1(&input));
     println!("elapsed: {:?}", Instant::now().duration_since(start));
 
     start = Instant::now();
-    println!("part2: {}", day18::part2());
+    println!("part2: {}", day01::part2(&input));
     println!("elapsed: {:?}", Instant::now().duration_since(start));
 }

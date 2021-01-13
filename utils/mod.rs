@@ -25,6 +25,14 @@ where
     input.iter().map(|s| s.parse().unwrap()).collect()
 }
 
+pub fn parse_nums<F>(input: &[String]) -> Vec<F>
+where
+    F: std::str::FromStr,
+    F::Err: std::fmt::Debug,
+{
+    input.iter().map(|s| s.parse().unwrap()).collect()
+}
+
 pub fn group_lines(lines: Vec<String>) -> Vec<Vec<String>> {
     lines
         .into_iter()
