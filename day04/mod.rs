@@ -1,4 +1,4 @@
-use regex::Regex;
+use pcre2::bytes::Regex;
 
 use crate::utils::{self, *};
 
@@ -35,22 +35,19 @@ pub fn part1() -> usize {
 pub fn part2() -> usize {
     let passes = read_passports();
     let mut validation_regexes: HashMap<&'static str, Regex> = HashMap::with_capacity(7);
-    validation_regexes.insert(
-        "byr",
-        Regex::new(r"(?-u)^(?:19[2-9][0-9]|200[0-2])$").unwrap(),
-    );
-    validation_regexes.insert("iyr", Regex::new(r"(?-u)^20(?:1[0-9]|20)$").unwrap());
-    validation_regexes.insert("eyr", Regex::new(r"(?-u)^20(?:2[0-9]|30)$").unwrap());
+    validation_regexes.insert("byr", Regex::new(r"^(?:19[2-9][0-9]|200[0-2])$").unwrap());
+    validation_regexes.insert("iyr", Regex::new(r"^20(?:1[0-9]|20)$").unwrap());
+    validation_regexes.insert("eyr", Regex::new(r"^20(?:2[0-9]|30)$").unwrap());
     validation_regexes.insert(
         "hgt",
-        Regex::new(r"(?-u)^(?:1(?:[5-8][0-9]|9[0-3])cm|(?:59|[6-8][0-9]|9[0-3])in)$").unwrap(),
+        Regex::new(r"^(?:1(?:[5-8][0-9]|9[0-3])cm|(?:59|[6-8][0-9]|9[0-3])in)$").unwrap(),
     );
-    validation_regexes.insert("hcl", Regex::new(r"(?-u)^#[0-9a-f]{6}$").unwrap());
+    validation_regexes.insert("hcl", Regex::new(r"^#[0-9a-f]{6}$").unwrap());
     validation_regexes.insert(
         "ecl",
-        Regex::new(r"(?-u)^(?:amb|blu|brn|gry|grn|hzl|oth)$").unwrap(),
+        Regex::new(r"^(?:amb|blu|brn|gry|grn|hzl|oth)$").unwrap(),
     );
-    validation_regexes.insert("pid", Regex::new(r"(?-u)^[0-9]{9}$").unwrap());
+    validation_regexes.insert("pid", Regex::new(r"^[0-9]{9}$").unwrap());
 
     passes
         .iter()
@@ -58,7 +55,7 @@ pub fn part2() -> usize {
             (pass.len() == 7 && !pass.contains_key("cid") || pass.len() == 8)
                 && validation_regexes.iter().all(|(key, validation_regex)| {
                     if let Some(value) = pass.get(key) {
-                        validation_regex.is_match(value)
+                        validation_regex.is_match(value.as_bytes()).unwrap()
                     } else {
                         false
                     }
