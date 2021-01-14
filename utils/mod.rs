@@ -96,3 +96,14 @@ pub fn gcd(mut a: usize, mut b: usize) -> usize {
 pub fn lcm(a: usize, b: usize) -> usize {
     (a / gcd(a, b)) * b
 }
+
+#[inline]
+pub fn fast_count<T, F: Fn(&T) -> bool>(s: &[T], f: F) -> usize {
+    let mut c = 0;
+    for e in s {
+        if f(e) {
+            c += 1;
+        }
+    }
+    c
+}

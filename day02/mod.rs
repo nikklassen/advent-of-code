@@ -1,47 +1,84 @@
-use regex::Regex;
-
 use crate::utils;
 
-struct PwdEntry {
+struct PwdEntry<'a> {
     v1: usize,
     v2: usize,
-    c: char,
-    pwd: String,
+    c: u8,
+    pwd: &'a [u8],
 }
 
-fn read_entries() -> Vec<PwdEntry> {
-    let re = Regex::new(r"(\d+)-(\d+) ([a-z]): ([a-z]+)").unwrap();
-    let input = utils::read_input_lines("day02");
-    input
-        .iter()
-        .map(|line| {
-            let captures = re.captures(line).unwrap();
-            PwdEntry {
-                v1: captures[1].parse().unwrap(),
-                v2: captures[2].parse().unwrap(),
-                c: captures[3].chars().next().unwrap(),
-                pwd: captures[4].to_string(),
-            }
-        })
-        .collect()
+fn read_entries(input: &[String]) -> Vec<PwdEntry> {
+    let mut entries = Vec::with_capacity(input.len());
+    for line in input {
+        let dash_idx = line.find('-').unwrap();
+        let v1 = line[..dash_idx].parse().unwrap();
+
+        let space_idx = line[(dash_idx + 1)..].find(' ').unwrap() + dash_idx + 1;
+        let v2 = line[(dash_idx + 1)..space_idx].parse().unwrap();
+
+        let c = line.as_bytes()[space_idx + 1];
+
+        let pwd = &line.as_bytes()[(space_idx + 4)..];
+
+        entries.push(PwdEntry { v1, v2, c, pwd })
+    }
+    entries
 }
 
 fn is_policy_match1(e: &PwdEntry) -> bool {
-    let count = e.pwd.chars().filter(|&c| c == e.c).count();
-    count >= e.v1 && count <= e.v2
+    let mut count = 0;
+    for b in e.pwd {
+        if *b == e.c {
+            count += 1;
+        }
+        if count > e.v2 {
+            return false;
+        }
+    }
+    count >= e.v1
 }
 
-pub fn part1() -> usize {
-    let entries = read_entries();
-    entries.iter().filter(|e| is_policy_match1(e)).count()
+pub fn part1(input: &[String]) -> usize {
+    let entries = read_entries(input);
+    utils::fast_count(&entries, is_policy_match1)
 }
 
 fn is_policy_match2(e: &PwdEntry) -> bool {
-    let chars = e.pwd.chars().collect::<Vec<_>>();
-    (chars[e.v1 - 1] == e.c) ^ (chars[e.v2 - 1] == e.c)
+    (e.pwd[e.v1 - 1] == e.c) ^ (e.pwd[e.v2 - 1] == e.c)
 }
 
-pub fn part2() -> usize {
-    let entries = read_entries();
-    entries.iter().filter(|e| is_policy_match2(e)).count()
+pub fn part2(input: &[String]) -> usize {
+    let entries = read_entries(input);
+    utils::fast_count(&entries, is_policy_match2)
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    use test::Bencher;
+
+    lazy_static! {
+        static ref INPUT: Vec<String> = utils::read_input_lines("day02");
+    }
+
+    #[test]
+    fn run_part1() {
+        assert_eq!(part1(&INPUT), 469);
+    }
+
+    #[test]
+    fn run_part2() {
+        assert_eq!(part2(&INPUT), 267);
+    }
+
+    #[bench]
+    fn bench_part_1(b: &mut Bencher) {
+        b.iter(|| part1(&INPUT));
+    }
+
+    #[bench]
+    fn bench_part_2(b: &mut Bencher) {
+        b.iter(|| part2(&INPUT));
+    }
 }
