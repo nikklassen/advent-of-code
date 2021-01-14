@@ -2,9 +2,12 @@ use std::collections::HashSet;
 
 use crate::utils;
 
-fn read_answers() -> Vec<Vec<String>> {
-    let input = utils::read_input_lines("day06");
-    utils::group_lines(input)
+lazy_static! {
+    static ref INPUT: Vec<String> = utils::read_input_lines("day06");
+}
+
+fn read_answers() -> Vec<Vec<&'static String>> {
+    utils::group_lines(&INPUT)
 }
 
 pub fn part1() -> usize {

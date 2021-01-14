@@ -1,72 +1,95 @@
-use std::collections::HashMap;
-use std::iter::Iterator;
-
 use regex::Regex;
 
-use crate::utils;
+use crate::utils::{self, *};
 
-fn read_passports() -> Vec<HashMap<String, String>> {
-    let input = utils::read_input_lines("day04");
-    utils::group_lines(input)
-        .into_iter()
-        .map(|lines| {
-            lines
-                .iter()
-                .map(|line| {
-                    line.split(' ').map(|kvp| {
-                        let parts = kvp.split(':').collect::<Vec<_>>();
-                        (parts[0].to_string(), parts[1].to_string())
-                    })
-                })
-                .flatten()
-                .collect()
-        })
-        .collect()
+lazy_static! {
+    static ref INPUT: Vec<String> = utils::read_input_lines("day04");
+}
+
+fn read_passports() -> Vec<HashMap<&'static str, &'static str>> {
+    let mut passports = Vec::with_capacity(INPUT.len());
+    passports.push(HashMap::with_capacity(8));
+    let mut passport = passports.last_mut().unwrap();
+    for line in INPUT.iter() {
+        if line.is_empty() {
+            passports.push(HashMap::with_capacity(8));
+            passport = passports.last_mut().unwrap();
+            continue;
+        }
+
+        for kvp in line.split(' ') {
+            passport.insert(&kvp[..3], &kvp[4..]);
+        }
+    }
+    passports
 }
 
 pub fn part1() -> usize {
     let passes = read_passports();
-    let required_fields = vec!["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
     passes
         .iter()
-        .filter(|pass| {
-            required_fields
-                .iter()
-                .all(|key| pass.contains_key(&key.to_string()))
-        })
+        .filter(|pass| pass.len() == 7 && !pass.contains_key("cid") || pass.len() == 8)
         .count()
 }
 
 pub fn part2() -> usize {
     let passes = read_passports();
-    let mut validation_regexes = HashMap::new();
+    let mut validation_regexes: HashMap<&'static str, Regex> = HashMap::with_capacity(7);
     validation_regexes.insert(
-        "byr".to_string(),
-        Regex::new(r"^(19[2-9][0-9]|200[0-2])$").unwrap(),
+        "byr",
+        Regex::new(r"(?-u)^(?:19[2-9][0-9]|200[0-2])$").unwrap(),
     );
-    validation_regexes.insert("iyr".to_string(), Regex::new(r"^20(1[0-9]|20)$").unwrap());
-    validation_regexes.insert("eyr".to_string(), Regex::new(r"^20(2[0-9]|30)$").unwrap());
+    validation_regexes.insert("iyr", Regex::new(r"(?-u)^20(?:1[0-9]|20)$").unwrap());
+    validation_regexes.insert("eyr", Regex::new(r"(?-u)^20(?:2[0-9]|30)$").unwrap());
     validation_regexes.insert(
-        "hgt".to_string(),
-        Regex::new(r"^(1([5-8][0-9]|9[0-3])cm|(59|[6-8][0-9]|9[0-3])in)$").unwrap(),
+        "hgt",
+        Regex::new(r"(?-u)^(?:1(?:[5-8][0-9]|9[0-3])cm|(?:59|[6-8][0-9]|9[0-3])in)$").unwrap(),
     );
-    validation_regexes.insert("hcl".to_string(), Regex::new(r"^#[0-9a-f]{6}$").unwrap());
+    validation_regexes.insert("hcl", Regex::new(r"(?-u)^#[0-9a-f]{6}$").unwrap());
     validation_regexes.insert(
-        "ecl".to_string(),
-        Regex::new(r"^(amb|blu|brn|gry|grn|hzl|oth)$").unwrap(),
+        "ecl",
+        Regex::new(r"(?-u)^(?:amb|blu|brn|gry|grn|hzl|oth)$").unwrap(),
     );
-    validation_regexes.insert("pid".to_string(), Regex::new(r"^[0-9]{9}$").unwrap());
+    validation_regexes.insert("pid", Regex::new(r"(?-u)^[0-9]{9}$").unwrap());
 
     passes
         .iter()
         .filter(|pass| {
-            validation_regexes.iter().all(|(key, validation_regex)| {
-                if let Some(value) = pass.get(key) {
-                    validation_regex.is_match(value)
-                } else {
-                    false
-                }
-            })
+            (pass.len() == 7 && !pass.contains_key("cid") || pass.len() == 8)
+                && validation_regexes.iter().all(|(key, validation_regex)| {
+                    if let Some(value) = pass.get(key) {
+                        validation_regex.is_match(value)
+                    } else {
+                        false
+                    }
+                })
         })
         .count()
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    use test::Bencher;
+
+    #[test]
+    fn run_part1() {
+        assert_eq!(part1(), 228);
+    }
+
+    #[test]
+    fn run_part2() {
+        assert_eq!(part2(), 175);
+    }
+
+    #[bench]
+    fn bench_part_1(b: &mut Bencher) {
+        b.iter(part1);
+    }
+
+    #[bench]
+    fn bench_part_2(b: &mut Bencher) {
+        b.iter(part2);
+    }
 }

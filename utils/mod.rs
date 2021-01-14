@@ -33,16 +33,16 @@ where
     input.iter().map(|s| s.parse().unwrap()).collect()
 }
 
-pub fn group_lines(lines: Vec<String>) -> Vec<Vec<String>> {
+pub fn group_lines(lines: &[String]) -> Vec<Vec<&String>> {
     lines
-        .into_iter()
-        .group_by(|line| line.as_str() != "")
+        .iter()
+        .group_by(|line| !line.is_empty())
         .into_iter()
         .filter_map(|(v, lines)| {
             if !v {
                 return None;
             }
-            Some(lines.collect())
+            Some(lines.into_iter().collect())
         })
         .collect()
 }
