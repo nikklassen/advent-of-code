@@ -1,15 +1,20 @@
+#![allow(clippy::needless_range_loop)]
+
 use crate::utils;
 
-fn read_seat_ids() -> Vec<i32> {
-    let input = utils::read_input_lines("day05");
-    input.iter().map(|line| parse_seat_id(line)).collect()
+lazy_static! {
+    static ref INPUT: Vec<String> = utils::read_input_lines("day05");
 }
 
-fn parse_seat_id(s: &str) -> i32 {
+fn read_seat_ids() -> impl std::iter::Iterator<Item = usize> {
+    INPUT.iter().map(|line| parse_seat_id(line))
+}
+
+fn parse_seat_id(s: &str) -> usize {
     let mut digit = 1;
     let mut tot = 0;
-    for c in s.chars().rev() {
-        if c == 'B' || c == 'R' {
+    for &c in s.as_bytes().iter().rev() {
+        if c == b'B' || c == b'R' {
             tot += digit;
         }
         digit *= 2;
@@ -17,16 +22,15 @@ fn parse_seat_id(s: &str) -> i32 {
     tot
 }
 
-pub fn part1() -> i32 {
-    *read_seat_ids().iter().max().unwrap()
+pub fn part1() -> usize {
+    read_seat_ids().max().unwrap()
 }
 
-pub fn part2() -> i32 {
-    let mut seat_ids = read_seat_ids();
+pub fn part2() -> usize {
+    let mut seat_ids = read_seat_ids().collect::<Vec<_>>();
     seat_ids.sort_unstable();
     for i in 1..(seat_ids.len()) {
         if seat_ids[i] != seat_ids[i - 1] + 1 {
-            assert!(seat_ids[i] == seat_ids[i - 1] + 2);
             return seat_ids[i] - 1;
         }
     }
@@ -36,12 +40,13 @@ pub fn part2() -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use test::Bencher;
 
     #[test]
     fn test_parse_seat() {
         struct TestCase {
             input: &'static str,
-            seat_id: i32,
+            seat_id: usize,
         }
         let tests = [
             TestCase {
@@ -61,5 +66,25 @@ mod tests {
             let sid = parse_seat_id(test.input);
             assert_eq!(sid, test.seat_id, "{}", test.input);
         }
+    }
+
+    #[test]
+    fn run_part1() {
+        assert_eq!(part1(), 965);
+    }
+
+    #[test]
+    fn run_part2() {
+        assert_eq!(part2(), 524);
+    }
+
+    #[bench]
+    fn bench_part_1(b: &mut Bencher) {
+        b.iter(part1);
+    }
+
+    #[bench]
+    fn bench_part_2(b: &mut Bencher) {
+        b.iter(part2);
     }
 }
