@@ -1,5 +1,9 @@
 use crate::utils;
 
+lazy_static! {
+    static ref INPUT: Vec<String> = utils::read_input_lines("day08");
+}
+
 enum Instruction {
     Nop(i32),
     Jump(i32),
@@ -7,8 +11,7 @@ enum Instruction {
 }
 
 fn read_instructions() -> Vec<Instruction> {
-    let input = utils::read_input_lines("day08");
-    input.iter().map(parse_instruction).collect()
+    INPUT.iter().map(parse_instruction).collect()
 }
 
 fn parse_instruction<S: AsRef<str>>(s: S) -> Instruction {
@@ -136,4 +139,30 @@ fn run_instructions2(insts: &mut [Instruction]) -> i32 {
 pub fn part2() -> i32 {
     let mut insts = read_instructions();
     run_instructions2(&mut insts)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[test]
+    fn run_part1() {
+        assert_eq!(part1(), 1317);
+    }
+
+    #[test]
+    fn run_part2() {
+        assert_eq!(part2(), 1033);
+    }
+
+    #[bench]
+    fn bench_part_1(b: &mut Bencher) {
+        b.iter(part1);
+    }
+
+    #[bench]
+    fn bench_part_2(b: &mut Bencher) {
+        b.iter(part2);
+    }
 }
