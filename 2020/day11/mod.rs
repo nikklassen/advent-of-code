@@ -1,5 +1,9 @@
 use crate::utils::{self, *};
 
+lazy_static! {
+    static ref INPUT: Vec<String> = utils::read_input_lines("day11");
+}
+
 #[derive(PartialEq, Debug)]
 enum State {
     Floor,
@@ -8,7 +12,7 @@ enum State {
 }
 
 fn read_seats() -> Vec<Vec<State>> {
-    utils::read_input_lines("day11")
+    INPUT
         .iter()
         .map(|line| {
             line.chars()
@@ -23,36 +27,42 @@ fn read_seats() -> Vec<Vec<State>> {
         .collect()
 }
 
-type AdjacentSeatsFn = dyn Fn(&[Vec<State>], GridIndex) -> Vec<GridIndex>;
-
-fn mark(seats: &[Vec<State>], find_adjacent: &AdjacentSeatsFn, seat_limit: i32) -> Vec<GridIndex> {
-    let mut marked = Vec::new();
-    for i in 0..seats.len() {
-        for (j, seat) in seats[i].iter().enumerate() {
-            match seat {
-                State::Floor => {}
-                State::Empty => {
-                    if find_adjacent(seats, (i, j))
+fn mark(
+    grid: &[Vec<State>],
+    seats: &[GridIndex],
+    seat_map: &HashMap<GridIndex, Vec<GridIndex>>,
+    seat_limit: usize,
+) -> Vec<GridIndex> {
+    let mut marked = Vec::with_capacity(seats.len());
+    for pos in seats.iter() {
+        let seat = utils::pos_index(grid, *pos);
+        match seat {
+            State::Empty => {
+                if let Some(adj_seats) = seat_map.get(pos) {
+                    if adj_seats
                         .iter()
-                        .all(|a| utils::pos_index(seats, *a) != &State::Occupied)
+                        .all(|a| utils::pos_index(grid, *a) != &State::Occupied)
                     {
-                        marked.push((i, j));
-                    }
-                }
-                State::Occupied => {
-                    if find_adjacent(seats, (i, j))
-                        .iter()
-                        .filter(|a| utils::pos_index(seats, **a) == &State::Occupied)
-                        .count()
-                        >= (seat_limit as usize)
-                    {
-                        marked.push((i, j));
+                        marked.push(*pos);
                     }
                 }
             }
+            State::Occupied => {
+                if let Some(adj_seats) = seat_map.get(pos) {
+                    if adj_seats
+                        .iter()
+                        .filter(|a| utils::pos_index(grid, **a) == &State::Occupied)
+                        .take(seat_limit)
+                        .count()
+                        == seat_limit
+                    {
+                        marked.push(*pos);
+                    }
+                }
+            }
+            State::Floor => unreachable!(),
         }
     }
-
     marked
 }
 
@@ -67,32 +77,67 @@ fn update(seats: &mut Vec<Vec<State>>, marked: &[GridIndex]) {
 }
 
 fn run_machine(
-    mut seats: Vec<Vec<State>>,
-    adjacent_seats_fn: &AdjacentSeatsFn,
-    seat_limit: i32,
+    grid: &mut Vec<Vec<State>>,
+    seat_map: &HashMap<GridIndex, Vec<GridIndex>>,
+    seat_limit: usize,
 ) -> usize {
+    let seats = grid
+        .iter()
+        .enumerate()
+        .map(|(i, row)| {
+            row.iter().enumerate().filter_map(move |(j, seat)| {
+                if seat != &State::Floor {
+                    Some((i, j))
+                } else {
+                    None
+                }
+            })
+        })
+        .flatten()
+        .collect::<Vec<_>>();
     loop {
-        let marked = mark(&seats, adjacent_seats_fn, seat_limit);
+        let marked = mark(grid, &seats, seat_map, seat_limit);
         if marked.is_empty() {
-            return seats
+            return grid
                 .iter()
                 .map(|row| row.iter().filter(|&s| s == &State::Occupied).count())
                 .sum();
         }
-        update(&mut seats, &marked);
+        update(grid, &marked);
     }
 }
 
-fn adjacent_seats(grid: &[Vec<State>], pos: GridIndex) -> Vec<GridIndex> {
-    utils::ADJACENT_DIRS
-        .iter()
-        .filter_map(|dir| utils::increment_pos(grid, pos, *dir))
-        .collect()
+fn make_adjacent_seats_map(grid: &[Vec<State>]) -> HashMap<GridIndex, Vec<GridIndex>> {
+    let mut map = HashMap::new();
+    for (i, row) in grid.iter().enumerate() {
+        for (j, seat) in row.iter().enumerate() {
+            if seat == &State::Floor {
+                continue;
+            }
+
+            let pos = (i, j);
+            let adjacent = utils::ADJACENT_DIRS
+                .iter()
+                .filter_map(|dir| {
+                    if let Some(seat) = utils::increment_pos(grid, pos, *dir) {
+                        if utils::pos_index(grid, seat) != &State::Floor {
+                            return Some(seat);
+                        }
+                    }
+                    None
+                })
+                .collect();
+
+            map.insert(pos, adjacent);
+        }
+    }
+    map
 }
 
 pub fn part1() -> usize {
-    let seats = read_seats();
-    run_machine(seats, &adjacent_seats, 4)
+    let mut seats = read_seats();
+    let seat_map = make_adjacent_seats_map(&seats);
+    run_machine(&mut seats, &seat_map, 4)
 }
 
 fn make_closest_seats_map(grid: &[Vec<State>]) -> HashMap<GridIndex, Vec<GridIndex>> {
@@ -123,14 +168,33 @@ fn make_closest_seats_map(grid: &[Vec<State>]) -> HashMap<GridIndex, Vec<GridInd
 }
 
 pub fn part2() -> usize {
-    let seats = read_seats();
+    let mut seats = read_seats();
     let seat_map = make_closest_seats_map(&seats);
-    let far_adjacent_seats = move |_grid: &[Vec<State>], pos: GridIndex| -> Vec<GridIndex> {
-        if let Some(adjacent) = seat_map.get(&pos) {
-            adjacent.clone()
-        } else {
-            Vec::new()
-        }
-    };
-    run_machine(seats, &far_adjacent_seats, 5)
+    run_machine(&mut seats, &seat_map, 5)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[test]
+    fn run_part1() {
+        assert_eq!(part1(), 2346);
+    }
+
+    #[test]
+    fn run_part2() {
+        assert_eq!(part2(), 2111);
+    }
+
+    #[bench]
+    fn bench_part_1(b: &mut Bencher) {
+        b.iter(part1);
+    }
+
+    #[bench]
+    fn bench_part_2(b: &mut Bencher) {
+        b.iter(part2);
+    }
 }
