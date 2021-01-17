@@ -36,6 +36,9 @@ test day08::tests::bench_part_2 ... bench:      54,209 ns/iter (+/- 18,745)
 test day09::tests::bench_part_1 ... bench:     159,512 ns/iter (+/- 34,033)
 test day09::tests::bench_part_2 ... bench:     173,101 ns/iter (+/- 52,507)
 
+test day10::tests::bench_part_1 ... bench:       1,171 ns/iter (+/- 507)
+test day10::tests::bench_part_2 ... bench:       1,663 ns/iter (+/- 804)
+
 test day18::tests::bench_part_1 ... bench:     378,090 ns/iter (+/- 93,048)
 test day18::tests::bench_part_2 ... bench:     625,030 ns/iter (+/- 174,333)
 ```

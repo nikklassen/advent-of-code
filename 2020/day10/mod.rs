@@ -1,18 +1,11 @@
 use crate::utils;
 
-fn read_adapters() -> Vec<i32> {
-    utils::parse_input_nums("day10")
+lazy_static! {
+    static ref INPUT: Vec<String> = utils::read_input_lines("day10");
 }
 
-type Count = (i32, i32, i32);
-
-fn add_to_count(c: &Count, diff: i32) -> Count {
-    match diff {
-        1 => (c.0 + 1, c.1, c.2),
-        2 => (c.0, c.1 + 1, c.2),
-        3 => (c.0, c.1, c.2 + 1),
-        _ => panic!("invalid diff: {}", diff),
-    }
+fn read_adapters() -> Vec<i32> {
+    utils::parse_nums(&INPUT)
 }
 
 pub fn part1() -> i32 {
@@ -55,4 +48,30 @@ pub fn part2() -> usize {
     adapters.sort_unstable();
 
     count_chains(adapters)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[test]
+    fn run_part1() {
+        assert_eq!(part1(), 2482);
+    }
+
+    #[test]
+    fn run_part2() {
+        assert_eq!(part2(), 96717311574016);
+    }
+
+    #[bench]
+    fn bench_part_1(b: &mut Bencher) {
+        b.iter(part1);
+    }
+
+    #[bench]
+    fn bench_part_2(b: &mut Bencher) {
+        b.iter(part2);
+    }
 }

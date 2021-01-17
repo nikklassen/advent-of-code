@@ -21,8 +21,7 @@ where
     F: std::str::FromStr,
     F::Err: std::fmt::Debug,
 {
-    let input = read_input_lines(dir);
-    input.iter().map(|s| s.parse().unwrap()).collect()
+    parse_nums(&read_input_lines(dir))
 }
 
 pub fn parse_nums<F>(input: &[String]) -> Vec<F>
