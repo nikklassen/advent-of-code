@@ -1,42 +1,21 @@
-use std::collections::{HashMap, HashSet};
+#![allow(clippy::needless_range_loop)]
 
 use crate::utils;
 
+lazy_static! {
+    static ref INPUT: Vec<String> = utils::read_input_lines("day09");
+}
+
 fn read_nums() -> Vec<usize> {
-    let input = utils::read_input_lines("day09");
-    input.iter().map(|s| s.parse().unwrap()).collect()
+    INPUT.iter().map(|s| s.parse().unwrap()).collect()
 }
 
 pub fn find_invalid(nums: &[usize]) -> usize {
-    let mut sum_locs = HashMap::<usize, HashSet<(usize, usize)>>::new();
-    for i in 0..25 {
-        for j in (i + 1)..25 {
-            sum_locs
-                .entry(nums[i] + nums[j])
-                .or_default()
-                .insert((i, j));
-        }
-    }
-    for end in 25..nums.len() {
-        let target = nums[end];
-        if !sum_locs.contains_key(&target) {
-            return target;
-        }
-        let j = end % 25;
-        for locs in sum_locs.values_mut() {
-            locs.retain(|loc| loc.0 != j && loc.1 != j);
-        }
-        sum_locs.retain(|_, locs| !locs.is_empty());
-
-        for cursor in 0..25 {
-            let i = end - 25 + cursor;
-            if i == j {
-                continue;
-            }
-            sum_locs
-                .entry(nums[i] + nums[end])
-                .or_default()
-                .insert((i, end));
+    let windows = nums.array_windows::<26>();
+    for window in windows {
+        let n = window[25];
+        if utils::sum2(&window[..25], n).is_none() {
+            return n;
         }
     }
     unreachable!()
@@ -73,4 +52,30 @@ pub fn part2() -> usize {
     let min = nums[start..end].iter().min().unwrap();
     let max = nums[start..end].iter().max().unwrap();
     min + max
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[test]
+    fn run_part1() {
+        assert_eq!(part1(), 177777905);
+    }
+
+    #[test]
+    fn run_part2() {
+        assert_eq!(part2(), 23463012);
+    }
+
+    #[bench]
+    fn bench_part_1(b: &mut Bencher) {
+        b.iter(part1);
+    }
+
+    #[bench]
+    fn bench_part_2(b: &mut Bencher) {
+        b.iter(part2);
+    }
 }

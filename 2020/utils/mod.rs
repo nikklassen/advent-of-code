@@ -107,3 +107,35 @@ pub fn fast_count<T, F: Fn(&T) -> bool>(s: &[T], f: F) -> usize {
     }
     c
 }
+
+pub fn copy_slice_to_vec<T: Copy>(s: &[T]) -> Vec<T> {
+    let mut new = Vec::with_capacity(s.len());
+    unsafe {
+        new.set_len(s.len());
+    }
+    new.copy_from_slice(s);
+    new
+}
+
+pub fn sum2(vs: &[usize], target: usize) -> Option<(usize, usize)> {
+    let mut new = copy_slice_to_vec(vs);
+    sum2_mut(&mut new, target)
+}
+
+pub fn sum2_mut(vs: &mut [usize], target: usize) -> Option<(usize, usize)> {
+    vs.sort_unstable();
+
+    let n = vs.len();
+    for i in 0..n {
+        let vi = vs[i];
+
+        #[allow(clippy::needless_range_loop)]
+        for j in (i + 1)..n {
+            let vj = vs[j];
+            if vi + vj == target {
+                return Some((vi, vj));
+            }
+        }
+    }
+    None
+}

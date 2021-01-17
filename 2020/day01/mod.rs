@@ -3,20 +3,9 @@
 use crate::utils;
 
 pub fn part1(input: &[String]) -> usize {
-    let mut vals: Vec<usize> = utils::parse_nums(input);
-    vals.sort_unstable();
-
-    let n = vals.len();
-    for i in 0..n {
-        let vi = vals[i];
-        for j in (i + 1)..n {
-            let vj = vals[j];
-            if vi + vj == 2020 {
-                return vi * vj;
-            }
-        }
-    }
-    unreachable!();
+    let mut vals = utils::parse_nums(input);
+    let (vi, vj) = utils::sum2_mut(&mut vals, 2020).unwrap();
+    vi * vj
 }
 
 pub fn part2(input: &[String]) -> usize {
