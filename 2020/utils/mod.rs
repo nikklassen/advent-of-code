@@ -49,7 +49,7 @@ pub fn group_lines(lines: &[String]) -> Vec<Vec<&String>> {
 pub type GridIndex = (usize, usize);
 
 #[derive(Clone, Copy, Eq, PartialEq, Hash)]
-pub struct GridDir(isize, isize);
+pub struct GridDir(pub isize, pub isize);
 
 pub static ADJACENT_DIRS: [GridDir; 8] = [
     GridDir(-1, -1),

@@ -39,8 +39,8 @@ test day09::tests::bench_part_2 ... bench:     173,101 ns/iter (+/- 52,507)
 test day10::tests::bench_part_1 ... bench:       1,171 ns/iter (+/- 507)
 test day10::tests::bench_part_2 ... bench:       1,663 ns/iter (+/- 804)
 
-test day11::tests::bench_part_1 ... bench:  33,326,010 ns/iter (+/- 9,018,127)
-test day11::tests::bench_part_2 ... bench:  30,998,630 ns/iter (+/- 13,066,628)
+test day11::tests::bench_part_1 ... bench:   3,885,685 ns/iter (+/- 988,750)
+test day11::tests::bench_part_2 ... bench:   4,317,985 ns/iter (+/- 1,478,712)
 
 test day18::tests::bench_part_1 ... bench:     378,090 ns/iter (+/- 93,048)
 test day18::tests::bench_part_2 ... bench:     625,030 ns/iter (+/- 174,333)

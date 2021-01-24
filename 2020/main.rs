@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-#![feature(test, array_windows)]
+#![feature(test, array_windows, bindings_after_at)]
 
 extern crate regex;
 #[macro_use]
