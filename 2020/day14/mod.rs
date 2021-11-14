@@ -3,11 +3,12 @@ use crate::utils::{self, *};
 use regex::Regex;
 
 lazy_static! {
+    static ref INPUT: Vec<String> = utils::read_input_lines("day14");
     static ref MEM_RE: Regex = Regex::new(r"^mem\[(\d+)\] = (\d+)$").unwrap();
 }
 
 fn read_input() -> Vec<Command> {
-    utils::read_input_lines("day14")
+    INPUT
         .iter()
         .map(|line| {
             if let Some(mask_str) = line.strip_prefix("mask = ") {
@@ -167,4 +168,30 @@ pub fn part2() -> u64 {
         };
         state
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[test]
+    fn run_part1() {
+        assert_eq!(part1(), 14839536808842);
+    }
+
+    #[test]
+    fn run_part2() {
+        assert_eq!(part2(), 4215284199669);
+    }
+
+    #[bench]
+    fn bench_part_1(b: &mut Bencher) {
+        b.iter(part1);
+    }
+
+    #[bench]
+    fn bench_part_2(b: &mut Bencher) {
+        b.iter(part2);
+    }
 }

@@ -4,6 +4,7 @@ use regex::Regex;
 use std::ops::RangeInclusive;
 
 lazy_static! {
+    static ref INPUT: Vec<String> = utils::read_input_lines("day16");
     static ref NOTE_RE: Regex = Regex::new(r"^(.*): (\d+)-(\d+) or (\d+)-(\d+)$").unwrap();
 }
 
@@ -26,8 +27,9 @@ fn parse_ticket(line: String) -> Ticket {
 }
 
 fn read_info() -> (Vec<Note>, Ticket, Vec<Ticket>) {
-    let groups = utils::read_input_lines("day16")
-        .into_iter()
+    let groups = INPUT
+        .iter()
+        .map(|s| s.to_string())
         .group_by(|line| !line.is_empty());
     let mut groups = groups.into_iter();
     let notes = groups
@@ -121,4 +123,30 @@ pub fn part2() -> usize {
         }
     }
     tot
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[test]
+    fn run_part1() {
+        assert_eq!(part1(), 25984);
+    }
+
+    #[test]
+    fn run_part2() {
+        assert_eq!(part2(), 1265347500049);
+    }
+
+    #[bench]
+    fn bench_part_1(b: &mut Bencher) {
+        b.iter(part1);
+    }
+
+    #[bench]
+    fn bench_part_2(b: &mut Bencher) {
+        b.iter(part2);
+    }
 }

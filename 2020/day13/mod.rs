@@ -1,10 +1,13 @@
 use crate::utils;
 use std::iter::*;
 
+lazy_static! {
+    static ref INPUT: Vec<String> = utils::read_input_lines("day13");
+}
+
 fn read_schedules() -> (usize, Vec<Option<usize>>) {
-    let lines = utils::read_input_lines("day13");
-    let earliest: usize = lines[0].parse().unwrap();
-    let busses = lines[1]
+    let earliest: usize = INPUT[0].parse().unwrap();
+    let busses = INPUT[1]
         .split(',')
         .map(|b| b.parse::<usize>().ok())
         .collect();
@@ -57,4 +60,30 @@ pub fn part2() -> usize {
         t = find_next(t, l, bus_index, bus);
     }
     t
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[test]
+    fn run_part1() {
+        assert_eq!(part1(), 102);
+    }
+
+    #[test]
+    fn run_part2() {
+        assert_eq!(part2(), 327300950120029);
+    }
+
+    #[bench]
+    fn bench_part_1(b: &mut Bencher) {
+        b.iter(part1);
+    }
+
+    #[bench]
+    fn bench_part_2(b: &mut Bencher) {
+        b.iter(part2);
+    }
 }

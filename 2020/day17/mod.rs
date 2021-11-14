@@ -154,3 +154,29 @@ pub fn part1() -> usize {
 pub fn part2() -> usize {
     run_machine::<Point4>()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[test]
+    fn run_part1() {
+        assert_eq!(part1(), 255);
+    }
+
+    #[test]
+    fn run_part2() {
+        assert_eq!(part2(), 2340);
+    }
+
+    #[bench]
+    fn bench_part_1(b: &mut Bencher) {
+        b.iter(part1);
+    }
+
+    #[bench]
+    fn bench_part_2(b: &mut Bencher) {
+        b.iter(part2);
+    }
+}

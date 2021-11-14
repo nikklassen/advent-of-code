@@ -1,5 +1,9 @@
 use crate::utils;
 
+lazy_static! {
+    static ref INPUT: Vec<String> = utils::read_input_lines("day12");
+}
+
 enum Action {
     North(i32),
     East(i32),
@@ -30,7 +34,7 @@ struct WaypointState {
 static PI_2: f32 = 2.0 * std::f32::consts::PI;
 
 fn read_actions() -> Vec<Action> {
-    utils::read_input_lines("day12")
+    INPUT
         .iter()
         .map(|line| {
             let mut chars = line.chars();
@@ -209,4 +213,30 @@ pub fn part2() -> i32 {
         next_state_waypoint,
     );
     final_state.boat.north.abs() + final_state.boat.east.abs()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[test]
+    fn run_part1() {
+        assert_eq!(part1(), 757);
+    }
+
+    #[test]
+    fn run_part2() {
+        assert_eq!(part2(), 51249);
+    }
+
+    #[bench]
+    fn bench_part_1(b: &mut Bencher) {
+        b.iter(part1);
+    }
+
+    #[bench]
+    fn bench_part_2(b: &mut Bencher) {
+        b.iter(part2);
+    }
 }

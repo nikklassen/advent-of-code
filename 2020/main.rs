@@ -1,9 +1,10 @@
 #![allow(dead_code)]
-#![feature(test, array_windows, bindings_after_at, new_uninit)]
+#![feature(test, array_windows, new_uninit)]
 
 extern crate regex;
 #[macro_use]
 extern crate lazy_static;
+extern crate ahash;
 extern crate test;
 
 pub mod utils;
