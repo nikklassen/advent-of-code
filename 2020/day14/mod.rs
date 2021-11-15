@@ -1,10 +1,11 @@
-use crate::utils::{self, *};
+use std::lazy::OnceCell;
 
-use regex::Regex;
+use crate::utils;
+
+use ahash::AHashMap;
 
 lazy_static! {
     static ref INPUT: Vec<String> = utils::read_input_lines("day14");
-    static ref MEM_RE: Regex = Regex::new(r"^mem\[(\d+)\] = (\d+)$").unwrap();
 }
 
 fn read_input() -> Vec<Command> {
@@ -14,58 +15,70 @@ fn read_input() -> Vec<Command> {
             if let Some(mask_str) = line.strip_prefix("mask = ") {
                 Command::UpdateMask(mask_str.parse::<Mask>().unwrap())
             } else {
-                let captures = MEM_RE.captures(line).unwrap();
-                Command::Write {
-                    address: captures[1].to_string().parse().unwrap(),
-                    value: captures[2].to_string().parse().unwrap(),
+                // Format: ^mem\[\d+\] = \d+$
+                let mut n = 0;
+                let mut address = 0u64;
+                for c in line[4..].chars() {
+                    if c.is_digit(10) {
+                        n = n * 10 + ((c as u64) - ('0' as u64));
+                    } else if n > 0 {
+                        address = n;
+                        n = 0;
+                    }
                 }
+                Command::Write { address, value: n }
             }
         })
         .collect()
 }
 
-#[derive(Copy, Clone)]
 struct Mask {
     x_bits: u64,
     set_bits: u64,
+    all_values_cache: OnceCell<Vec<u64>>,
 }
 
-fn mask_for_i(mask: u64, i: u64) -> u64 {
-    let mut bit = 1;
+fn mask_for_i(mut mask: u64, mut i: u64) -> u64 {
     let mut next_mask = 0;
-    let mut n_i = 1;
-    while bit < (1 << 36) {
-        if mask & bit > 0 {
-            if i & n_i > 0 {
-                next_mask |= bit;
-            }
-            n_i <<= 1;
-        }
-        bit <<= 1;
+    let mut b_num = 0;
+    while mask > 0 {
+        let m = mask & 1;
+        next_mask |= (i & m) << b_num;
+        // Go to the next bit of i if the current mask bit was 1.
+        i >>= m;
+        mask >>= 1;
+        b_num += 1;
     }
     next_mask
 }
 
 impl Mask {
+    fn new(x_bits: u64, set_bits: u64) -> Self {
+        Mask {
+            x_bits,
+            set_bits,
+            all_values_cache: OnceCell::new(),
+        }
+    }
+
     fn apply(&self, other: u64) -> u64 {
         (other & self.x_bits) | self.set_bits
     }
 
     fn all_values(&self, mut address: u64) -> Vec<u64> {
-        address |= self.set_bits;
-
-        let mut bit = 1 << 36;
-        let mut c = 1;
-        while bit > 0 {
-            if self.x_bits & bit > 0 {
-                c *= 2;
+        let masks = self.all_values_cache.get_or_init(|| {
+            let c = 2usize.pow(self.x_bits.count_ones());
+            let mut masks = vec![0; c];
+            for i in 0..c {
+                masks[i] = mask_for_i(self.x_bits, i as u64);
             }
-            bit >>= 1;
-        }
-        let mut values = vec![0; c];
-        for (i, val) in values.iter_mut().enumerate() {
-            let mask_i = mask_for_i(self.x_bits, i as u64);
-            *val = mask_i | ((!self.x_bits) & address);
+            masks
+        });
+
+        address |= self.set_bits;
+        let mut values = vec![0; masks.len()];
+        for i in 0..masks.len() {
+            values[i] = masks[i] | ((!self.x_bits) & address);
         }
         values
     }
@@ -85,28 +98,25 @@ impl std::str::FromStr for Mask {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        s.chars()
-            .fold(Some((0, 0)), |acc, c| {
-                acc.and_then(|(mut x_bits, mut set_bits)| {
-                    x_bits <<= 1;
-                    set_bits <<= 1;
-                    match c {
-                        '0' => {}
-                        '1' => {
-                            set_bits |= 1;
-                        }
-                        'X' => {
-                            x_bits |= 1;
-                        }
-                        _ => {
-                            return None;
-                        }
-                    };
-                    Some((x_bits, set_bits))
-                })
-            })
-            .map(|(x_bits, set_bits)| Mask { x_bits, set_bits })
-            .ok_or(())
+        let mut x_bits = 0;
+        let mut set_bits = 0;
+        for c in s.chars() {
+            x_bits <<= 1;
+            set_bits <<= 1;
+            match c {
+                '0' => {}
+                '1' => {
+                    set_bits |= 1;
+                }
+                'X' => {
+                    x_bits |= 1;
+                }
+                _ => {
+                    return Err(());
+                }
+            }
+        }
+        Ok(Mask::new(x_bits, set_bits))
     }
 }
 
@@ -119,38 +129,34 @@ enum Command {
 #[derive(Debug)]
 struct State {
     mask: Mask,
-    mem: HashMap<u64, u64>,
+    mem: AHashMap<u64, u64>,
 }
 
 fn run_decoder<F>(run_command: F) -> u64
 where
-    F: Fn(State, &Command) -> State,
+    F: Fn(&mut State, Command),
 {
     let commands = read_input();
-    let final_state = commands.iter().fold(
-        State {
-            mask: Mask {
-                x_bits: 0,
-                set_bits: 0,
-            },
-            mem: HashMap::new(),
-        },
-        run_command,
-    );
-    final_state.mem.values().sum()
+    let mut state = State {
+        mask: Mask::new(0, 0),
+        mem: AHashMap::new(),
+    };
+    for cmd in commands.into_iter() {
+        run_command(&mut state, cmd);
+    }
+    state.mem.values().sum()
 }
 
 pub fn part1() -> u64 {
     run_decoder(|mut state, command| {
         match command {
             Command::UpdateMask(mask) => {
-                state.mask = *mask;
+                state.mask = mask;
             }
             Command::Write { address, value } => {
-                state.mem.insert(*address, state.mask.apply(*value));
+                state.mem.insert(address, state.mask.apply(value));
             }
         };
-        state
     })
 }
 
@@ -158,15 +164,14 @@ pub fn part2() -> u64 {
     run_decoder(|mut state, command| {
         match command {
             Command::UpdateMask(mask) => {
-                state.mask = *mask;
+                state.mask = mask;
             }
             Command::Write { address, value } => {
-                for i in state.mask.all_values(*address) {
-                    state.mem.insert(i, *value);
+                for i in state.mask.all_values(address) {
+                    state.mem.insert(i, value);
                 }
             }
         };
-        state
     })
 }
 

@@ -42,6 +42,15 @@ test day10::tests::bench_part_2 ... bench:       1,663 ns/iter (+/- 804)
 test day11::tests::bench_part_1 ... bench:      42,232 ns/iter (+/- 13,159)
 test day11::tests::bench_part_2 ... bench:     128,146 ns/iter (+/- 22,260)
 
+test day12::tests::bench_part_1 ... bench:      27,977 ns/iter (+/- 9,311)
+test day12::tests::bench_part_2 ... bench:      34,429 ns/iter (+/- 13,882)
+
+test day13::tests::bench_part_1 ... bench:       1,056 ns/iter (+/- 332)
+test day13::tests::bench_part_2 ... bench:       5,245 ns/iter (+/- 1,205)
+
+test day14::tests::bench_part_1 ... bench:      36,205 ns/iter (+/- 8,594)
+test day14::tests::bench_part_2 ... bench:   3,537,035 ns/iter (+/- 1,091,371)
+
 test day15::tests::bench_part_1 ... bench:       3,626 ns/iter (+/- 196)
 test day15::tests::bench_part_2 ... bench: 511,602,880 ns/iter (+/- 23,134,400)
 ```
@@ -49,15 +58,6 @@ test day15::tests::bench_part_2 ... bench: 511,602,880 ns/iter (+/- 23,134,400)
 ## Unoptimized results
 
 ```
-test day12::tests::bench_part_1 ... bench:      27,977 ns/iter (+/- 9,311)
-test day12::tests::bench_part_2 ... bench:      34,429 ns/iter (+/- 13,882)
-
-test day13::tests::bench_part_1 ... bench:       1,056 ns/iter (+/- 332)
-test day13::tests::bench_part_2 ... bench:       5,245 ns/iter (+/- 1,205)
-
-test day14::tests::bench_part_1 ... bench:     184,250 ns/iter (+/- 164,999)
-test day14::tests::bench_part_2 ... bench:   6,214,770 ns/iter (+/- 874,176)
-
 test day16::tests::bench_part_1 ... bench:     181,017 ns/iter (+/- 271,255)
 test day16::tests::bench_part_2 ... bench:     743,955 ns/iter (+/- 372,004)
 
