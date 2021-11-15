@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-#![feature(test, array_windows, new_uninit, once_cell)]
+#![feature(test, array_windows, new_uninit, once_cell, destructuring_assignment)]
 
 extern crate regex;
 #[macro_use]
@@ -27,15 +27,16 @@ mod day15;
 mod day16;
 mod day17;
 mod day18;
+mod day19;
 
 use std::time::Instant;
 
 fn main() {
     let mut start = Instant::now();
-    println!("part1: {}", day15::part1());
+    println!("part1: {}", day19::part1());
     println!("elapsed: {:?}", Instant::now().duration_since(start));
 
     start = Instant::now();
-    println!("part2: {}", day15::part2());
+    println!("part2: {}", day19::part2());
     println!("elapsed: {:?}", Instant::now().duration_since(start));
 }
