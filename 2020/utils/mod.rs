@@ -63,10 +63,10 @@ pub static ADJACENT_DIRS: [GridDir; 8] = [
 ];
 
 pub fn increment_pos<T>(grid: &[Vec<T>], pos: GridIndex, dir: GridDir) -> Option<GridIndex> {
-    if pos.0 == 0 && dir.0 < 0
-        || pos.0 == grid.len() - 1 && dir.0 > 0
-        || pos.1 == 0 && dir.1 < 0
-        || pos.1 == grid[pos.0].len() - 1 && dir.1 > 0
+    if pos.1 == 0 && dir.1 < 0
+        || pos.1 == grid.len() - 1 && dir.1 > 0
+        || pos.0 == 0 && dir.0 < 0
+        || pos.0 == grid[pos.1].len() - 1 && dir.0 > 0
     {
         None
     } else {
@@ -78,7 +78,7 @@ pub fn increment_pos<T>(grid: &[Vec<T>], pos: GridIndex, dir: GridDir) -> Option
 }
 
 pub fn pos_index<T>(grid: &[Vec<T>], pos: GridIndex) -> &T {
-    &grid[pos.0][pos.1]
+    &grid[pos.1][pos.0]
 }
 
 pub fn gcd(mut a: usize, mut b: usize) -> usize {
