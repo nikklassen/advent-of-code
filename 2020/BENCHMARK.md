@@ -4,7 +4,7 @@ Note: Benchmarks do not include reading input lines into a `Vec<String>`
 
 ```
 Environment: WSL 2
-Cargo:       cargo 1.50.0-nightly
+Cargo:       cargo 1.58.0-nightly
 CPU:         i7-6700K
 RAM:         16 GB
 
@@ -53,6 +53,9 @@ test day14::tests::bench_part_2 ... bench:   3,537,035 ns/iter (+/- 1,091,371)
 
 test day15::tests::bench_part_1 ... bench:       3,626 ns/iter (+/- 196)
 test day15::tests::bench_part_2 ... bench: 511,602,880 ns/iter (+/- 23,134,400)
+
+test day20::tests::bench_part_1 ... bench:     234,048 ns/iter (+/- 87,558)
+test day20::tests::bench_part_2 ... bench:  14,684,790 ns/iter (+/- 3,505,292)
 ```
 
 ## Unoptimized results
@@ -66,7 +69,4 @@ test day17::tests::bench_part_2 ... bench:  24,951,040 ns/iter (+/- 3,936,835)
 
 test day18::tests::bench_part_1 ... bench:     378,090 ns/iter (+/- 93,048)
 test day18::tests::bench_part_2 ... bench:     625,030 ns/iter (+/- 174,333)
-
-test day20::tests::bench_part_1 ... bench:     310,686 ns/iter (+/- 172,466)
-test day20::tests::bench_part_2 ... bench: 166,274,780 ns/iter (+/- 15,105,762)
 ```
