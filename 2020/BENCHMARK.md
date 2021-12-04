@@ -56,6 +56,9 @@ test day15::tests::bench_part_2 ... bench: 511,602,880 ns/iter (+/- 23,134,400)
 
 test day20::tests::bench_part_1 ... bench:     234,048 ns/iter (+/- 87,558)
 test day20::tests::bench_part_2 ... bench:  14,684,790 ns/iter (+/- 3,505,292)
+
+test day21::tests::bench_part_1 ... bench:     212,396 ns/iter (+/- 20,782)
+test day21::tests::bench_part_2 ... bench:     202,113 ns/iter (+/- 15,987)
 ```
 
 ## Unoptimized results
