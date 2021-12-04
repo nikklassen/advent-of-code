@@ -1,4 +1,4 @@
-use crate::utils;
+use shared::utils;
 
 struct PwdEntry<'a> {
     v1: usize,

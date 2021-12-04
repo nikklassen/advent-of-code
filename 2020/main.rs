@@ -5,9 +5,8 @@ extern crate regex;
 #[macro_use]
 extern crate lazy_static;
 extern crate ahash;
+extern crate shared;
 extern crate test;
-
-pub mod utils;
 
 mod day01;
 mod day02;

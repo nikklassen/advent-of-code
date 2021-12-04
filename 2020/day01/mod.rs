@@ -1,6 +1,6 @@
 #![allow(clippy::needless_range_loop)]
 
-use crate::utils;
+use shared::utils;
 
 pub fn part1(input: &[String]) -> usize {
     let mut vals = utils::parse_nums(input);

@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use crate::utils::{self, *};
+use shared::utils::{self, *};
 
 lazy_static! {
     // static ref INPUT: Vec<String> = utils::read_sample_input_lines("day21");

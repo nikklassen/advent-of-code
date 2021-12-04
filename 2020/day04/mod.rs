@@ -1,6 +1,6 @@
 use pcre2::bytes::Regex;
 
-use crate::utils::{self, *};
+use shared::utils::{self, *};
 
 lazy_static! {
     static ref INPUT: Vec<String> = utils::read_input_lines("day04");

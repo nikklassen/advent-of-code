@@ -1,4 +1,4 @@
-use crate::utils::{self, *};
+use shared::utils::{self, *};
 
 #[derive(Copy, Clone, std::hash::Hash, Eq, PartialEq)]
 struct Point3(isize, isize, isize);

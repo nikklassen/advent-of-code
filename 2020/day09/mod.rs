@@ -1,6 +1,6 @@
 #![allow(clippy::needless_range_loop)]
 
-use crate::utils;
+use shared::utils;
 
 lazy_static! {
     static ref INPUT: Vec<String> = utils::read_input_lines("day09");

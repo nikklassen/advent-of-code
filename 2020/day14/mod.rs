@@ -1,6 +1,6 @@
 use std::lazy::OnceCell;
 
-use crate::utils;
+use shared::utils;
 
 use ahash::AHashMap;
 
