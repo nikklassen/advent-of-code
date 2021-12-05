@@ -2,6 +2,7 @@ use itertools::Itertools;
 use std::iter;
 use std::time::Instant;
 
+use shared::grid::{Grid, GridDir, GridIndex};
 use shared::utils::{self, *};
 
 lazy_static! {
@@ -179,10 +180,10 @@ impl std::fmt::Debug for Transformation {
 }
 
 impl Transformation {
-    fn transform_grid(&self, (x, y): GridIndex, len: usize) -> GridIndex {
+    fn transform_grid(&self, GridIndex(x, y): GridIndex, len: usize) -> GridIndex {
         let c = ((len - 1) as f32) / 2.0;
         let (new_x, new_y) = self.transform(((x as f32) - c, (y as f32) - c));
-        ((new_x + c).round() as usize, (new_y + c).round() as usize)
+        GridIndex((new_x + c).round() as usize, (new_y + c).round() as usize)
     }
     fn transform(&self, (x, y): (f32, f32)) -> (f32, f32) {
         (x * self.a + y * self.b, x * self.c + y * self.d)
@@ -278,20 +279,21 @@ fn tile_options(tiles: &[Tile], t: usize) -> Vec<PlacedTile> {
 }
 
 fn try_place_tiles_in_dir(
-    graph: &[Vec<Option<PlacedTile>>],
+    graph: &Grid<Option<PlacedTile>>,
     current_cell: GridIndex,
     options: &mut Vec<PlacedTile>,
     dir: GridDir,
 ) {
-    let cell = utils::increment_pos(graph, current_cell, dir)
-        .and_then(|adj| utils::pos_index(graph, adj).as_ref());
+    let cell = graph
+        .add_offset(current_cell, dir)
+        .and_then(|adj| graph[adj].as_ref());
     if let Some(pt) = cell {
         options.retain(|opt| is_match(opt, pt, dir));
     }
 }
 
 fn try_place_tile(
-    graph: &[Vec<Option<PlacedTile>>],
+    graph: &Grid<Option<PlacedTile>>,
     cached_options: &[Vec<PlacedTile>],
     current_cell: GridIndex,
     p: usize,
@@ -304,15 +306,15 @@ fn try_place_tile(
     options
 }
 
-fn get_next_index(graph: &[Vec<Option<PlacedTile>>], current_cell: GridIndex) -> GridIndex {
+fn get_next_index(graph: &Grid<Option<PlacedTile>>, current_cell: GridIndex) -> GridIndex {
     for dir in [GridDir::RIGHT, GridDir::DOWN, GridDir::LEFT, GridDir::UP] {
-        if let Some(next) = utils::add_pos(graph, current_cell, dir) {
-            if let None = utils::pos_index(graph, next) {
+        if let Some(next) = graph.add_offset(current_cell, dir) {
+            if let None = graph[next] {
                 return next;
             }
         }
     }
-    (0, current_cell.1 + 1)
+    GridIndex(0, current_cell.1 + 1)
 }
 
 // TODO: this could be optimized further by automatically checking for pieces
@@ -321,16 +323,16 @@ fn solve(
     current_cell: GridIndex,
     tiles: &[Tile],
     placed: Vec<bool>,
-    graph: Vec<Vec<Option<PlacedTile>>>,
+    graph: Grid<Option<PlacedTile>>,
     cached_options: &[Vec<PlacedTile>],
     tiles_by_edge: &AHashMap<u32, AHashSet<usize>>,
     corners: &AHashSet<usize>,
     edges: &AHashSet<usize>,
-) -> Option<Vec<Vec<Option<PlacedTile>>>> {
-    let bound = graph.len() - 1;
-    let (x, y) = current_cell;
-    let is_corner = (x == 0 || x == bound) && (y == 0 || y == bound);
-    let is_edge = !is_corner && (x == 0 || x == bound || y == 0 || y == bound);
+) -> Option<Grid<Option<PlacedTile>>> {
+    let (x_bound, y_bound) = (graph.width() - 1, graph.height() - 1);
+    let GridIndex(x, y) = current_cell;
+    let is_corner = (x == 0 || x == x_bound) && (y == 0 || y == y_bound);
+    let is_edge = !is_corner && (x == 0 || x == x_bound || y == 0 || y == y_bound);
 
     let unplaced_tiles = (0..tiles.len())
         .filter(|i| {
@@ -338,8 +340,8 @@ fn solve(
                 return false;
             }
             for dir in [GridDir::UP, GridDir::RIGHT, GridDir::DOWN, GridDir::LEFT] {
-                if let Some(above) = utils::increment_pos(&graph, current_cell, dir) {
-                    if let Some(piece) = utils::pos_index(&graph, above) {
+                if let Some(above) = graph.add_offset(current_cell, dir) {
+                    if let Some(piece) = &graph[above] {
                         let above_bottom_edge = get_edge(piece, dir.flip());
                         if !tiles_by_edge[&above_bottom_edge].contains(i) {
                             return false;
@@ -361,12 +363,12 @@ fn solve(
     for idx in unplaced_tiles {
         for pt in try_place_tile(&graph, cached_options, current_cell, idx) {
             let mut next_g = graph.clone();
-            utils::set_pos(&mut next_g, current_cell, Some(pt.clone()));
+            next_g[current_cell] = Some(pt.clone());
             let mut next_placed = placed.clone();
             next_placed[idx] = true;
             let next_index = get_next_index(&next_g, current_cell);
             let solution = solve(
-                next_index as GridIndex,
+                next_index,
                 tiles,
                 next_placed,
                 next_g,
@@ -383,60 +385,60 @@ fn solve(
     None
 }
 
-fn transform_and_crop_pixels(pt: &PlacedTile, pixels: &[Vec<char>]) -> Vec<Vec<char>> {
+fn transform_and_crop_pixels(pt: &PlacedTile, pixels: &[Vec<char>]) -> Grid<char> {
     let cropped_len = pixels.len() - 2;
-    let mut new_pixels = vec![vec![' '; cropped_len]; cropped_len];
+    let mut new_pixels = Grid::from_elem('x', cropped_len);
 
     for (y, row) in pixels[1..pixels.len() - 1].iter().enumerate() {
         for (x, p) in row[1..row.len() - 1].iter().enumerate() {
-            let new_coord = pt.transformation.transform_grid((x, y), cropped_len);
-            utils::set_pos(&mut new_pixels, new_coord, *p);
+            let new_coord = pt
+                .transformation
+                .transform_grid(GridIndex(x, y), cropped_len);
+            new_pixels[new_coord] = *p;
         }
     }
 
     new_pixels
 }
 
-fn flatten_img(tiles: &[Tile], graph: &[Vec<PlacedTile>]) -> Vec<Vec<char>> {
+fn flatten_img(tiles: &[Tile], graph: &[Vec<PlacedTile>]) -> Grid<char> {
     let mut ret = Vec::with_capacity(96);
     for g_row in graph.iter() {
         let mut rows = vec![vec![]; 8];
-        for pt in g_row.iter() {
+        for pt in g_row {
             let pixels = transform_and_crop_pixels(pt, &tiles[pt.tile].pixels);
 
-            for (j, pixel_row) in pixels.into_iter().enumerate() {
+            for (j, pixel_row) in pixels.rows().enumerate() {
                 rows[j].extend(pixel_row);
             }
         }
         ret.extend(rows);
     }
-    ret
+    Grid::from_vec(ret)
 }
 
 static POSITIONS: [GridIndex; 15] = [
-    (0, 1),
-    (1, 2),
-    (4, 2),
-    (5, 1),
-    (6, 1),
-    (7, 2),
-    (10, 2),
-    (11, 1),
-    (12, 1),
-    (13, 2),
-    (16, 2),
-    (17, 1),
-    (18, 0),
-    (18, 1),
-    (19, 1),
+    GridIndex(0, 1),
+    GridIndex(1, 2),
+    GridIndex(4, 2),
+    GridIndex(5, 1),
+    GridIndex(6, 1),
+    GridIndex(7, 2),
+    GridIndex(10, 2),
+    GridIndex(11, 1),
+    GridIndex(12, 1),
+    GridIndex(13, 2),
+    GridIndex(16, 2),
+    GridIndex(17, 1),
+    GridIndex(18, 0),
+    GridIndex(18, 1),
+    GridIndex(19, 1),
 ];
 
-fn is_sea_monster(grid: &[Vec<char>], current_cell: GridIndex, positions: &[GridIndex]) -> bool {
+fn is_sea_monster(grid: &Grid<char>, current_cell: GridIndex, positions: &[GridIndex]) -> bool {
     for pos in positions.iter() {
-        if let Some(idx) =
-            utils::add_pos(grid, current_cell, GridDir(pos.0 as isize, pos.1 as isize))
-        {
-            if *utils::pos_index(grid, idx) != '#' {
+        if let Some(idx) = grid.add_offset(current_cell, GridDir(pos.0 as isize, pos.1 as isize)) {
+            if grid[idx] != '#' {
                 return false;
             }
         } else {
@@ -447,12 +449,12 @@ fn is_sea_monster(grid: &[Vec<char>], current_cell: GridIndex, positions: &[Grid
 }
 
 fn find_all_sea_monsters(
-    img: &[Vec<char>],
+    img: &Grid<char>,
     positions: &[GridIndex],
     is_tall: bool,
 ) -> Vec<GridIndex> {
     let mut sea_monsters = vec![];
-    let len = img.len();
+    let len = img.height();
     let (x_bound, y_bound) = if is_tall {
         (len - 2, len - 19)
     } else {
@@ -461,8 +463,8 @@ fn find_all_sea_monsters(
 
     for y in 0..y_bound {
         for x in 0..x_bound {
-            if is_sea_monster(&img, (x, y), positions) {
-                sea_monsters.push((x, y));
+            if is_sea_monster(&img, GridIndex(x, y), positions) {
+                sea_monsters.push(GridIndex(x, y));
             }
         }
     }
@@ -485,7 +487,7 @@ pub fn part2() -> usize {
 
     let placed = vec![false; tiles.len()];
     let bounds = (tiles.len() as f32).sqrt() as usize;
-    let graph = vec![vec![None; bounds]; bounds];
+    let graph = Grid::new(bounds);
 
     let (corners, edges) = find_corners_and_edges(&tiles, &tiles_by_edge);
 
@@ -500,7 +502,7 @@ pub fn part2() -> usize {
         .collect_vec();
 
     let solution = solve(
-        (0usize, 0usize) as GridIndex,
+        GridIndex(0usize, 0usize),
         &tiles,
         placed,
         graph,
@@ -515,8 +517,12 @@ pub fn part2() -> usize {
     start = Instant::now();
 
     let placed_tiles = solution
-        .into_iter()
-        .map(|row| row.into_iter().map(|t| t.unwrap()).collect_vec())
+        .rows()
+        .map(|row| {
+            row.iter()
+                .map(|t| t.as_ref().unwrap().clone())
+                .collect_vec()
+        })
         .collect_vec();
 
     let img = flatten_img(&tiles, &placed_tiles);
@@ -526,7 +532,7 @@ pub fn part2() -> usize {
 
     let mut sea_monsters: Vec<GridIndex> = vec![];
 
-    let bound = img.len();
+    let bound = img.height();
     for flip_x in [false, true] {
         for flip_y in [false, true] {
             for rotation in 0..4 {
@@ -553,11 +559,9 @@ pub fn part2() -> usize {
     }
 
     let mut count = 0;
-    for row in img.iter() {
-        for &c in row.iter() {
-            if c == '#' {
-                count += 1;
-            }
+    for &c in img.iter() {
+        if c == '#' {
+            count += 1;
         }
     }
 
@@ -886,86 +890,35 @@ mod tests {
     #[test]
     fn transformation_rotate() {
         let bound = 4;
-        let p: GridIndex = (2, 2);
+        let p = GridIndex(2, 2);
 
         let t = make_transformation(false, false, 0);
         assert_eq!(t.transform_grid(p, bound), p);
 
         let t = make_transformation(false, false, 1);
-        assert_eq!(t.transform_grid(p, bound), (2, 1));
+        assert_eq!(t.transform_grid(p, bound), GridIndex(1, 2));
 
         let t = make_transformation(false, false, 2);
-        assert_eq!(t.transform_grid(p, bound), (1, 1));
+        assert_eq!(t.transform_grid(p, bound), GridIndex(1, 1));
 
         let t = make_transformation(false, false, 3);
-        assert_eq!(t.transform_grid(p, bound), (1, 2));
+        assert_eq!(t.transform_grid(p, bound), GridIndex(2, 1));
     }
 
     #[test]
     fn transformation_flip() {
         let bound = 4;
-        let p: GridIndex = (2, 2);
+        let p: GridIndex = GridIndex(2, 2);
 
         let t = make_transformation(true, false, 0);
 
-        assert_eq!(t.transform_grid(p, bound), (1, 2));
-        assert_eq!(t.transform_grid((0, 0), bound), (3, 0));
+        assert_eq!(t.transform_grid(p, bound), GridIndex(1, 2));
+        assert_eq!(t.transform_grid(GridIndex(0, 0), bound), GridIndex(3, 0));
 
         let t = make_transformation(false, true, 0);
 
-        assert_eq!(t.transform_grid(p, bound), (2, 1));
-        assert_eq!(t.transform_grid((0, 0), bound), (0, 3));
-    }
-
-    #[test]
-    fn flatten() {
-        let tiles = vec![make_tile(
-            1,
-            vec![
-                vec!['.', '.', '#'],
-                vec!['.', '.', '.'],
-                vec!['.', '#', '.'],
-            ],
-        )];
-
-        let pt = transform_tile(&tiles, 0, false, false, 1);
-
-        let img = transform_and_crop_pixels(&pt, &tiles[0].pixels);
-
-        assert_eq!(
-            img,
-            vec![
-                vec!['.', '.', '.'],
-                vec!['#', '.', '.'],
-                vec!['.', '.', '#'],
-            ]
-        );
-
-        let pt = transform_tile(&tiles, 0, true, false, 0);
-
-        let img = transform_and_crop_pixels(&pt, &tiles[0].pixels);
-
-        assert_eq!(
-            img,
-            vec![
-                vec!['#', '.', '.'],
-                vec!['.', '.', '.'],
-                vec!['.', '#', '.'],
-            ]
-        );
-
-        let pt = transform_tile(&tiles, 0, false, true, 0);
-
-        let img = transform_and_crop_pixels(&pt, &tiles[0].pixels);
-
-        assert_eq!(
-            img,
-            vec![
-                vec!['.', '#', '.'],
-                vec!['.', '.', '.'],
-                vec!['.', '.', '#'],
-            ]
-        );
+        assert_eq!(t.transform_grid(p, bound), GridIndex(2, 1));
+        assert_eq!(t.transform_grid(GridIndex(0, 0), bound), GridIndex(0, 3));
     }
 
     #[test]

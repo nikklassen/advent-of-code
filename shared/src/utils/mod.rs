@@ -56,60 +56,6 @@ pub fn group_lines(lines: &[String]) -> Vec<Vec<&String>> {
         .collect()
 }
 
-pub type GridIndex = (usize, usize);
-
-#[derive(Clone, Copy, Eq, PartialEq, Hash)]
-pub struct GridDir(pub isize, pub isize);
-
-impl GridDir {
-    pub const UP: GridDir = GridDir(0, -1);
-    pub const RIGHT: GridDir = GridDir(1, 0);
-    pub const DOWN: GridDir = GridDir(0, 1);
-    pub const LEFT: GridDir = GridDir(-1, 0);
-
-    pub fn flip(&self) -> GridDir {
-        GridDir(self.0 * -1, self.1 * -1)
-    }
-}
-
-pub static ADJACENT_DIRS: [GridDir; 8] = [
-    GridDir(-1, -1),
-    GridDir::UP,
-    GridDir(-1, 1),
-    GridDir::LEFT,
-    GridDir::RIGHT,
-    GridDir(1, -1),
-    GridDir::DOWN,
-    GridDir(1, 1),
-];
-
-pub fn increment_pos<T>(grid: &[Vec<T>], pos: GridIndex, dir: GridDir) -> Option<GridIndex> {
-    if pos.1 == 0 && dir.1 < 0
-        || pos.1 == grid.len() - 1 && dir.1 > 0
-        || pos.0 == 0 && dir.0 < 0
-        || pos.0 == grid[pos.1].len() - 1 && dir.0 > 0
-    {
-        None
-    } else {
-        Some((
-            ((pos.0 as isize) + dir.0) as usize,
-            ((pos.1 as isize) + dir.1) as usize,
-        ))
-    }
-}
-
-pub fn add_pos<T>(grid: &[Vec<T>], pos: GridIndex, dir: GridDir) -> Option<GridIndex> {
-    let new_x = (pos.0 as isize) + dir.0;
-    let new_y = (pos.1 as isize) + dir.1;
-
-    if new_y < 0 || new_y >= grid.len() as isize || new_x < 0 || new_x >= grid[pos.1].len() as isize
-    {
-        None
-    } else {
-        Some((new_x as usize, new_y as usize))
-    }
-}
-
 pub fn rotate_grid<T: Clone + Default>(grid: &[Vec<T>], theta: f32) -> Vec<Vec<T>> {
     let bound = (grid.len() - 1) as f32 / 2.0;
     let (sin_t, cos_t) = theta.sin_cos();
@@ -141,32 +87,6 @@ pub fn flip_grid_mut<T>(grid: &mut Vec<Vec<T>>, x: bool, y: bool) {
     }
     if y {
         grid.reverse();
-    }
-}
-
-pub fn pos_index<T>(grid: &[Vec<T>], pos: GridIndex) -> &T {
-    &grid[pos.1][pos.0]
-}
-
-pub fn set_pos<T>(grid: &mut [Vec<T>], pos: GridIndex, t: T) {
-    grid[pos.1][pos.0] = t;
-}
-
-pub fn print_grid<T: std::fmt::Display>(grid: &[Vec<T>]) {
-    for row in grid {
-        for e in row {
-            print!("{}", e);
-        }
-        println!("");
-    }
-}
-
-pub fn print_grid_debug<T: std::fmt::Debug>(grid: &[Vec<T>]) {
-    for row in grid {
-        for e in row {
-            print!("{:?}", e);
-        }
-        println!("");
     }
 }
 

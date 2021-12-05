@@ -3,4 +3,5 @@
 
 extern crate ahash;
 
+pub mod grid;
 pub mod utils;
