@@ -8,7 +8,7 @@ pub struct GridIndex(pub usize, pub usize);
 
 impl Display for GridIndex {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "({}, {})", self.0, self.1)
     }
 }
 
@@ -99,11 +99,18 @@ impl<T> Grid<T> {
     pub fn iter<'a>(&'a self) -> std::slice::Iter<'a, T> {
         self.cells.iter()
     }
+
+    pub fn iter_mut<'a>(&'a mut self) -> std::slice::IterMut<'a, T> {
+        self.cells.iter_mut()
+    }
 }
 
 impl<T: Default> Grid<T> {
     pub fn new(size: usize) -> Self {
         let mut cells = Vec::with_capacity(size * size);
+        unsafe {
+            cells.set_len(size * size);
+        }
         cells.fill_with(T::default);
         Grid {
             cells,
