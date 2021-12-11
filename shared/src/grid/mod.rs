@@ -1,6 +1,8 @@
 use std::{
     fmt::Display,
+    num::ParseIntError,
     slice::{ChunksExact, ChunksExactMut},
+    str::FromStr,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -15,6 +17,22 @@ impl Display for GridIndex {
 impl From<(usize, usize)> for GridIndex {
     fn from((x, y): (usize, usize)) -> Self {
         GridIndex(x, y)
+    }
+}
+
+impl FromStr for GridIndex {
+    type Err = ParseIntError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let coords: Vec<&str> = s
+            .trim_matches(|p| p == '(' || p == ')')
+            .split(',')
+            .collect();
+
+        let x_fromstr = coords[0].parse::<usize>()?;
+        let y_fromstr = coords[1].parse::<usize>()?;
+
+        Ok(GridIndex(x_fromstr, y_fromstr))
     }
 }
 
