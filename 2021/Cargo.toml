@@ -12,6 +12,7 @@ itertools = "0.10.0"
 lazy_static = "1.4.0"
 pcre2 = "0.2.3"
 ahash = "0.7.6"
+rdxsort = "0.3.0"
 shared = { path = "../shared" }
 
 [[bin]]

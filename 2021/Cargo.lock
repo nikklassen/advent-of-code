@@ -30,6 +30,7 @@ dependencies = [
  "itertools",
  "lazy_static",
  "pcre2",
+ "rdxsort",
  "regex",
  "shared",
 ]
@@ -145,6 +146,12 @@ name = "pkg-config"
 version = "0.3.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "12295df4f294471248581bc09bef3c38a5e46f1e36d6a37353621a0c6c357e1f"
+
+[[package]]
+name = "rdxsort"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75963a5f70eb99b7a82bcf70946429fc3f82c1ca6718609976622c343750c169"
 
 [[package]]
 name = "regex"
