@@ -1,5 +1,6 @@
 use std::{
     fmt::Display,
+    iter::repeat,
     num::ParseIntError,
     slice::{ChunksExact, ChunksExactMut},
     str::FromStr,
@@ -61,6 +62,9 @@ pub static ADJACENT_DIRS: [GridDir; 8] = [
     GridDir(1, 1),
 ];
 
+pub static CARDINAL_DIRS: [GridDir; 4] =
+    [GridDir::UP, GridDir::LEFT, GridDir::RIGHT, GridDir::DOWN];
+
 #[derive(Clone, PartialEq)]
 pub struct Grid<T> {
     cells: Vec<T>,
@@ -118,6 +122,14 @@ impl<T> Grid<T> {
         self.cells.iter()
     }
 
+    pub fn enumerate_cells<'a>(&'a self) -> impl std::iter::Iterator<Item = (GridIndex, &'a T)> {
+        self.indexes().map(|idx| (idx, &self[idx]))
+    }
+
+    pub fn indexes(&self) -> impl std::iter::Iterator<Item = GridIndex> + '_ {
+        (0..self.height).flat_map(|y| (0..self.width).zip(repeat(y)).map(|(x, y)| GridIndex(x, y)))
+    }
+
     pub fn iter_mut<'a>(&'a mut self) -> std::slice::IterMut<'a, T> {
         self.cells.iter_mut()
     }
@@ -125,15 +137,19 @@ impl<T> Grid<T> {
 
 impl<T: Default> Grid<T> {
     pub fn new(size: usize) -> Self {
-        let mut cells = Vec::with_capacity(size * size);
+        Grid::with_bounds(size, size)
+    }
+
+    pub fn with_bounds(width: usize, height: usize) -> Self {
+        let mut cells = Vec::with_capacity(width * height);
         unsafe {
-            cells.set_len(size * size);
+            cells.set_len(width * height);
         }
         cells.fill_with(T::default);
         Grid {
             cells,
-            height: size,
-            width: size,
+            height,
+            width,
         }
     }
 }
