@@ -1,0 +1,10 @@
+[workspace]
+
+members = [
+  "2020",
+  "2021",
+  "shared"
+]
+
+[profile.release]
+debug = true

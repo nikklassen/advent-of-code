@@ -17,6 +17,3 @@ shared = { path = "../shared" }
 [[bin]]
 name = "aoc20"
 path = "main.rs"
-
-[profile.release]
-debug = true
