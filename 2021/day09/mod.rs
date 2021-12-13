@@ -31,7 +31,7 @@ pub fn part1() -> usize {
         let mut is_low = true;
         for &dir in CARDINAL_DIRS.iter() {
             let Some(p) = grid.add_offset(idx, dir) else { continue };
-            if grid[p] <= center {
+            if grid[p] <= *center {
                 is_low = false;
                 break;
             }
