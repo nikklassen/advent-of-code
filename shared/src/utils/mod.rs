@@ -116,8 +116,9 @@ pub fn fast_count<T, F: Fn(&T) -> bool>(s: &[T], f: F) -> usize {
     c
 }
 
+#[allow(clippy::uninit_vec)]
 pub fn copy_slice_to_vec<T: Copy>(s: &[T]) -> Vec<T> {
-    let mut new = Vec::with_capacity(s.len());
+    let mut new: Vec<T> = Vec::with_capacity(s.len());
     unsafe {
         new.set_len(s.len());
     }
@@ -151,6 +152,7 @@ pub fn sum2_mut(vs: &mut [usize], target: usize) -> Option<(usize, usize)> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use test::Bencher;
 
     #[test]
     fn graph_flip_x() {
@@ -166,5 +168,11 @@ mod tests {
         flip_grid_mut(&mut g, false, true);
         let want_g = vec![vec![1, 0, 1], vec![0, 1, 0], vec![1, 0, 0]];
         assert_eq!(g, want_g);
+    }
+
+    #[bench]
+    fn bench_copy_slice_to_vec(b: &mut Bencher) {
+        let mem = vec![1; 1 << 16];
+        b.iter(|| copy_slice_to_vec(&mem))
     }
 }

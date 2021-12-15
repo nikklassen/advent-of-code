@@ -94,7 +94,7 @@ pub fn part1() -> usize {
         for b in boards.iter_mut() {
             update_board(*called_num, b);
         }
-        if let Some(b) = boards.iter().filter(|b| is_done(b)).next() {
+        if let Some(b) = boards.iter().find(|b| is_done(b)) {
             return score_board(*called_num, b);
         }
     }

@@ -9,6 +9,7 @@ lazy_static! {
     static ref INPUT: Vec<String> = utils::read_input_lines("day08");
 }
 
+#[allow(clippy::type_complexity)]
 fn parse_input() -> Vec<(Vec<HashSet<char>>, Vec<HashSet<char>>)> {
     INPUT
         .iter()
@@ -70,7 +71,7 @@ fn get_segments(i: usize) -> HashSet<usize> {
 fn which_num(display: &[char; 7], value: &HashSet<char>) -> usize {
     for i in 0..=9 {
         let seg_chars: HashSet<char> = get_segments(i).iter().map(|&d| display[d]).collect();
-        if seg_chars.len() == value.len() && seg_chars.difference(&value).count() == 0 {
+        if seg_chars.len() == value.len() && seg_chars.difference(value).count() == 0 {
             return i;
         }
     }
@@ -83,7 +84,7 @@ fn which_num(display: &[char; 7], value: &HashSet<char>) -> usize {
 // 4 6
 //  5
 
-fn map_display(inputs: &Vec<HashSet<char>>) -> [char; 7] {
+fn map_display(inputs: &[HashSet<char>]) -> [char; 7] {
     let mut display = [' '; 7];
     let mut values = vec![HashSet::new(); 10];
     for input in inputs.iter() {
@@ -98,15 +99,15 @@ fn map_display(inputs: &Vec<HashSet<char>>) -> [char; 7] {
 
     let seven_values = inputs.iter().find(|input| input.len() == 3).unwrap();
 
-    display[1] = *seven_values.difference(&one_values).next().unwrap();
+    display[1] = *seven_values.difference(one_values).next().unwrap();
 
     let three_values = inputs
         .iter()
-        .find(|input| input.len() == 5 && input.intersection(&one_values).count() == 2)
+        .find(|input| input.len() == 5 && input.intersection(one_values).count() == 2)
         .unwrap();
 
     display[5] = *three_values
-        .difference(&seven_values.union(&four_values).cloned().collect())
+        .difference(&seven_values.union(four_values).cloned().collect())
         .next()
         .unwrap();
 
@@ -124,20 +125,20 @@ fn map_display(inputs: &Vec<HashSet<char>>) -> [char; 7] {
     let nine_values = inputs
         .iter()
         .find(|input| {
-            input.len() == 6 && input.intersection(&three_values).count() == three_values.len()
+            input.len() == 6 && input.intersection(three_values).count() == three_values.len()
         })
         .unwrap();
 
-    display[0] = *nine_values.difference(&three_values).next().unwrap();
+    display[0] = *nine_values.difference(three_values).next().unwrap();
 
     let eight_values = inputs.iter().find(|input| input.len() == 7).unwrap();
 
-    display[4] = *eight_values.difference(&nine_values).next().unwrap();
+    display[4] = *eight_values.difference(nine_values).next().unwrap();
 
     let two_and_five_values = inputs
         .iter()
         .filter(|input| {
-            input.len() == 5 && input.intersection(&three_values).count() != three_values.len()
+            input.len() == 5 && input.intersection(three_values).count() != three_values.len()
         })
         .collect_vec();
 
@@ -151,8 +152,8 @@ fn map_display(inputs: &Vec<HashSet<char>>) -> [char; 7] {
         two_values = two_and_five_values[1].clone();
     }
 
-    display[2] = *two_values.intersection(&one_values).next().unwrap();
-    display[6] = *five_values.intersection(&one_values).next().unwrap();
+    display[2] = *two_values.intersection(one_values).next().unwrap();
+    display[6] = *five_values.intersection(one_values).next().unwrap();
 
     display
 }
@@ -165,7 +166,7 @@ pub fn part2() -> usize {
         let mut n = 0;
         for output in outputs.iter() {
             n *= 10;
-            n += which_num(&display, &output);
+            n += which_num(&display, output);
         }
 
         sum += n;

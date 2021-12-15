@@ -77,7 +77,7 @@ pub fn part2() -> usize {
             LineResult::Incomplete(stack) => Some(stack),
             _ => None,
         })
-        .map(|stack| score_incomplete(stack))
+        .map(score_incomplete)
         .collect_vec();
     scores.sort_unstable();
     scores[scores.len() / 2]

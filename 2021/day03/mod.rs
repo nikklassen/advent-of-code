@@ -67,6 +67,6 @@ fn find_co2_rating(nums: Vec<Vec<char>>) -> usize {
 pub fn part2() -> usize {
     let nums = parse_input();
     let o2_rating = find_o2_rating(nums.clone());
-    let co2_rating = find_co2_rating(nums.clone());
+    let co2_rating = find_co2_rating(nums);
     o2_rating * co2_rating
 }

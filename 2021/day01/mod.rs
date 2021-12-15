@@ -11,7 +11,7 @@ fn parse_input() -> Vec<usize> {
     utils::parse_nums(&INPUT)
 }
 
-fn count_increases<'a>(i: &[usize]) -> usize {
+fn count_increases(i: &[usize]) -> usize {
     i.iter()
         .fold((0, None), |(c, prev_opt), v| {
             if let Some(prev) = prev_opt {

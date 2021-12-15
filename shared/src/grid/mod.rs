@@ -47,7 +47,7 @@ impl GridDir {
     pub const LEFT: GridDir = GridDir(-1, 0);
 
     pub fn flip(&self) -> GridDir {
-        GridDir(self.0 * -1, self.1 * -1)
+        GridDir(-self.0, -self.1)
     }
 }
 
@@ -118,11 +118,11 @@ impl<T> Grid<T> {
         self.cells.chunks_exact_mut(self.width)
     }
 
-    pub fn iter<'a>(&'a self) -> std::slice::Iter<'a, T> {
+    pub fn iter(&self) -> std::slice::Iter<'_, T> {
         self.cells.iter()
     }
 
-    pub fn enumerate_cells<'a>(&'a self) -> impl std::iter::Iterator<Item = (GridIndex, &'a T)> {
+    pub fn enumerate_cells(&self) -> impl std::iter::Iterator<Item = (GridIndex, &T)> {
         self.indexes().map(|idx| (idx, &self[idx]))
     }
 
@@ -130,7 +130,7 @@ impl<T> Grid<T> {
         (0..self.height).flat_map(|y| (0..self.width).zip(repeat(y)).map(|(x, y)| GridIndex(x, y)))
     }
 
-    pub fn iter_mut<'a>(&'a mut self) -> std::slice::IterMut<'a, T> {
+    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, T> {
         self.cells.iter_mut()
     }
 }
@@ -140,6 +140,7 @@ impl<T: Default> Grid<T> {
         Grid::with_bounds(size, size)
     }
 
+    #[allow(clippy::uninit_vec)]
     pub fn with_bounds(width: usize, height: usize) -> Self {
         let mut cells = Vec::with_capacity(width * height);
         unsafe {
@@ -193,7 +194,7 @@ impl<T: Display> std::fmt::Display for Grid<T> {
             for e in row {
                 write!(f, "{}", e)?;
             }
-            writeln!(f, "")?;
+            writeln!(f)?;
         }
         Ok(())
     }
@@ -205,7 +206,7 @@ impl<T: std::fmt::Debug> std::fmt::Debug for Grid<T> {
             for e in row {
                 write!(f, "{:?}", e)?;
             }
-            writeln!(f, "")?;
+            writeln!(f)?;
         }
         Ok(())
     }
