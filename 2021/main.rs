@@ -1,5 +1,12 @@
 #![allow(dead_code)]
-#![feature(test, array_windows, new_uninit, once_cell, let_else)]
+#![feature(
+    test,
+    array_windows,
+    new_uninit,
+    once_cell,
+    let_else,
+    binary_heap_retain
+)]
 
 extern crate ahash;
 #[macro_use]
@@ -19,15 +26,16 @@ mod day08;
 mod day09;
 mod day10;
 mod day14;
+mod day15;
 
 use std::time::Instant;
 
 fn main() {
     let mut start = Instant::now();
-    println!("part1: {}", day14::part1());
+    println!("part1: {}", day15::part1());
     println!("elapsed: {:?}", Instant::now().duration_since(start));
 
     start = Instant::now();
-    println!("part2: {}", day14::part2());
+    println!("part2: {}", day15::part2());
     println!("elapsed: {:?}", Instant::now().duration_since(start));
 }
