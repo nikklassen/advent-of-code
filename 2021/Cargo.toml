@@ -11,6 +11,7 @@ lazy_static = "1.4.0"
 pcre2 = "0.2.3"
 ahash = "0.7.6"
 rdxsort = "0.3.0"
+pathfinding = "3.0.5"
 shared = { path = "../shared" }
 
 [[bin]]

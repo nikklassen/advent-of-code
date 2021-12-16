@@ -11,6 +11,7 @@
 extern crate ahash;
 #[macro_use]
 extern crate lazy_static;
+extern crate pathfinding;
 extern crate regex;
 extern crate shared;
 extern crate test;

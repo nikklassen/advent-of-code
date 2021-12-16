@@ -6,7 +6,7 @@ use std::{
     str::FromStr,
 };
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub struct GridIndex(pub usize, pub usize);
 
 impl Display for GridIndex {

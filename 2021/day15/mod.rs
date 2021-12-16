@@ -1,9 +1,5 @@
-use std::{
-    cmp::{Ordering, Reverse},
-    collections::BinaryHeap,
-};
-
 use itertools::Itertools;
+use pathfinding::directed::astar;
 use shared::{
     grid::{Grid, GridIndex, CARDINAL_DIRS},
     utils,
@@ -26,61 +22,20 @@ fn parse_input() -> Grid<usize> {
     Grid::from_vec(char_grid)
 }
 
-#[derive(Eq, PartialEq)]
-struct ValWithPriority {
-    val: GridIndex,
-    priority: usize,
-}
-
-impl Ord for ValWithPriority {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        Reverse(self.priority).cmp(&Reverse(other.priority))
-    }
-}
-
-impl PartialOrd for ValWithPriority {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
 fn run(grid: &Grid<usize>, source: GridIndex, target: GridIndex) -> usize {
-    let mut dist: Grid<usize> = Grid::with_bounds(grid.width(), grid.height());
-    let mut prev: Grid<Option<GridIndex>> = Grid::with_bounds(grid.width(), grid.height());
-
-    let mut q = BinaryHeap::new();
-
-    for v in grid.indexes() {
-        if v != source {
-            dist[v] = usize::MAX;
-        }
-        q.push(ValWithPriority {
-            val: v,
-            priority: usize::MAX,
-        })
-    }
-
-    'outer: while let Some(u) = q.pop() {
-        for neighbour_dir in CARDINAL_DIRS.iter() {
-            if let Some(v) = grid.add_offset(u.val, *neighbour_dir) {
-                let alt = dist[u.val] + grid[v];
-                if alt < dist[v] {
-                    dist[v] = alt;
-                    prev[v] = Some(u.val);
-                    q.retain(|node| node.val != v);
-                    q.push(ValWithPriority {
-                        val: v,
-                        priority: alt,
-                    })
-                }
-                if v == target {
-                    break 'outer;
-                }
-            }
-        }
-    }
-
-    dist[target]
+    astar::astar(
+        &source,
+        |&p| {
+            CARDINAL_DIRS
+                .iter()
+                .filter_map(|&d| grid.add_offset(p, d).map(|n| (n, grid[n])))
+                .collect::<Vec<_>>()
+        },
+        |p| (target.0 - p.0) + (target.1 - p.1),
+        |&p| p == target,
+    )
+    .unwrap()
+    .1
 }
 
 pub fn part1() -> usize {
