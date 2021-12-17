@@ -28,15 +28,16 @@ mod day09;
 mod day10;
 mod day14;
 mod day15;
+mod day16;
 
 use std::time::Instant;
 
 fn main() {
     let mut start = Instant::now();
-    println!("part1: {}", day15::part1());
+    println!("part1: {}", day16::part1());
     println!("elapsed: {:?}", Instant::now().duration_since(start));
 
     start = Instant::now();
-    println!("part2: {}", day15::part2());
+    println!("part2: {}", day16::part2());
     println!("elapsed: {:?}", Instant::now().duration_since(start));
 }
