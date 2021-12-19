@@ -7,6 +7,31 @@ use std::path::Path;
 
 use itertools::Itertools;
 
+/*
+fn parse_next<I, U>(mut i: I) -> Option<U>
+where
+    I: Iterator,
+    I::Item: AsRef<str>,
+    U: std::str::FromStr,
+{
+    i.next().and_then(|v| U::from_str(v.as_ref()).ok())
+}
+*/
+
+pub trait NextParser {
+    fn parse_next<U: std::str::FromStr>(&mut self) -> Option<U>;
+}
+
+impl<I> NextParser for I
+where
+    I: Iterator,
+    I::Item: AsRef<str>,
+{
+    fn parse_next<U: std::str::FromStr>(&mut self) -> Option<U> {
+        self.next().and_then(|v| U::from_str(v.as_ref()).ok())
+    }
+}
+
 fn read_file_lines(dir: &str, file_name: &str) -> Vec<String> {
     let mut file = File::open(Path::new(dir).join(file_name)).unwrap();
     let mut contents = String::new();
