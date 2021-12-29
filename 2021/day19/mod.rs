@@ -106,31 +106,41 @@ fn get_dimension(b: &Beacon, t: isize) -> isize {
     }
 }
 
-fn transform_beacon(b: &Beacon, ref_b: &Beacon, t: &Transformation) -> Beacon {
-    Beacon {
-        x: get_dimension(b, t.x) - ref_b.x,
-        y: get_dimension(b, t.y) - ref_b.y,
-        z: get_dimension(b, t.z) - ref_b.z,
-    }
-}
-
-fn has_overlap_with_tranform(s1: &Scanner, s2: &Scanner, t: &Transformation) -> Option<Beacon> {
+fn has_overlap_with_tranform(s1: &Scanner, s2_beacons: &AHashSet<Beacon>) -> Option<Beacon> {
+    let n2 = s2_beacons.len();
     for b1 in s1.beacons.iter() {
-        for start_b in s2.beacons.iter() {
-            let mut matches = Vec::new();
-            let offset = transform_beacon(start_b, b1, t);
-            for b2 in s2.beacons.iter() {
-                let new_b = transform_beacon(b2, &offset, t);
-                if s1.beacons.contains(&new_b) {
-                    matches.push(*b2);
+        'outer: for start_b in s2_beacons.iter() {
+            let mut matches = 0;
+
+            let offset = Beacon {
+                x: start_b.x - b1.x,
+                y: start_b.y - b1.y,
+                z: start_b.z - b1.z,
+            };
+            let mut i = 0;
+            for b2 in s2_beacons.iter() {
+                // If we have more matches left to find than beacons exist, give up.
+                if (12 - matches) > (n2 - i) {
+                    continue 'outer;
                 }
-            }
-            if matches.len() >= 12 {
-                return Some(Beacon {
-                    x: -offset.x,
-                    y: -offset.y,
-                    z: -offset.z,
-                });
+                i += 1;
+
+                let new_b = Beacon {
+                    x: b2.x - offset.x,
+                    y: b2.y - offset.y,
+                    z: b2.z - offset.z,
+                };
+                if s1.beacons.contains(&new_b) {
+                    matches += 1;
+                }
+                if matches == 12 {
+                    // Offset is s2 relative to s1.
+                    return Some(Beacon {
+                        x: -offset.x,
+                        y: -offset.y,
+                        z: -offset.z,
+                    });
+                }
             }
         }
     }
@@ -139,7 +149,16 @@ fn has_overlap_with_tranform(s1: &Scanner, s2: &Scanner, t: &Transformation) -> 
 
 fn has_overlap(s1: &Scanner, s2: &Scanner) -> Option<(Transformation, Beacon)> {
     for t in TRANFORMATIONS.iter() {
-        if let Some(b) = has_overlap_with_tranform(s1, s2, t) {
+        let s2_beacons = s2
+            .beacons
+            .iter()
+            .map(|b| Beacon {
+                x: get_dimension(b, t.x),
+                y: get_dimension(b, t.y),
+                z: get_dimension(b, t.z),
+            })
+            .collect::<AHashSet<_>>();
+        if let Some(b) = has_overlap_with_tranform(s1, &s2_beacons) {
             return Some((*t, b));
         }
     }
