@@ -32,8 +32,11 @@ where
     }
 }
 
-fn read_file_lines(dir: &str, file_name: &str) -> Vec<String> {
-    let mut file = File::open(Path::new(dir).join(file_name)).unwrap();
+pub fn read_file_lines<P>(file_name: P) -> Vec<String>
+where
+    P: AsRef<Path>,
+{
+    let mut file = File::open(file_name).unwrap();
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
     contents
@@ -44,11 +47,11 @@ fn read_file_lines(dir: &str, file_name: &str) -> Vec<String> {
 }
 
 pub fn read_input_lines(dir: &str) -> Vec<String> {
-    read_file_lines(dir, "input.txt")
+    read_file_lines(Path::new(dir).join("input.txt"))
 }
 
 pub fn read_sample_input_lines(dir: &str) -> Vec<String> {
-    read_file_lines(dir, "sample_input.txt")
+    read_file_lines(Path::new(dir).join("sample_input.txt"))
 }
 
 pub fn parse_input_nums<F>(dir: &str) -> Vec<F>

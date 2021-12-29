@@ -27,6 +27,7 @@ mod day08;
 mod day09;
 mod day10;
 mod day11;
+mod day12;
 mod day14;
 mod day15;
 mod day16;
@@ -38,10 +39,10 @@ use std::time::Instant;
 
 fn main() {
     let mut start = Instant::now();
-    println!("part1: {}", day11::part1());
+    println!("part1: {}", day12::part1());
     println!("elapsed: {:?}", Instant::now().duration_since(start));
 
     start = Instant::now();
-    println!("part2: {}", day11::part2());
+    println!("part2: {}", day12::part2());
     println!("elapsed: {:?}", Instant::now().duration_since(start));
 }
