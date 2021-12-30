@@ -188,7 +188,6 @@ fn run(insts: &[Instruction]) -> Vec<Statement> {
                 regs[*target] = Box::new(Expr::Mod(lhs, source_value(&regs, source)))
             }
             Instruction::Eql(target, source) => {
-                /*
                 let lhs = if matches!(&*regs[*target], &Expr::Eql(_, _)) {
                     pop_reg(&mut regs, *target)
                 } else {
@@ -196,8 +195,7 @@ fn run(insts: &[Instruction]) -> Vec<Statement> {
                     statements.push(stmt);
                     Box::new(Expr::Var("tmp".to_string()))
                 };
-                */
-                let lhs = pop_reg(&mut regs, *target);
+                // let lhs = pop_reg(&mut regs, *target);
                 regs[*target] = Box::new(Expr::Eql(lhs, source_value(&regs, source)));
             }
         }
@@ -289,37 +287,37 @@ fn from_digits(digits: &[usize]) -> usize {
     ret
 }
 
-fn evaluate(e: &Box<Expr>, val: isize, digit: usize) -> Result<isize, String> {
+fn evaluate(e: &Box<Expr>, val: isize, tmp: isize, digit: usize) -> Result<isize, String> {
     let res = match e.as_ref() {
         Expr::Add(lhs, rhs) => {
-            let lhs = evaluate(lhs, val, digit)?;
-            let rhs = evaluate(rhs, val, digit)?;
+            let lhs = evaluate(lhs, val, tmp, digit)?;
+            let rhs = evaluate(rhs, val, tmp, digit)?;
             lhs + rhs
         }
         Expr::Mul(lhs, rhs) => {
-            let lhs = evaluate(lhs, val, digit)?;
-            let rhs = evaluate(rhs, val, digit)?;
+            let lhs = evaluate(lhs, val, tmp, digit)?;
+            let rhs = evaluate(rhs, val, tmp, digit)?;
             lhs * rhs
         }
         Expr::Div(lhs, rhs) => {
-            let lhs = evaluate(lhs, val, digit)?;
-            let rhs = evaluate(rhs, val, digit)?;
+            let lhs = evaluate(lhs, val, tmp, digit)?;
+            let rhs = evaluate(rhs, val, tmp, digit)?;
             if rhs == 0 {
                 return Err("bad div".to_string());
             }
             lhs / rhs
         }
         Expr::Mod(lhs, rhs) => {
-            let lhs = evaluate(lhs, val, digit)?;
-            let rhs = evaluate(rhs, val, digit)?;
+            let lhs = evaluate(lhs, val, tmp, digit)?;
+            let rhs = evaluate(rhs, val, tmp, digit)?;
             if lhs < 0 || rhs <= 0 {
                 return Err("bad mod".to_string());
             }
             lhs % rhs
         }
         Expr::Eql(lhs, rhs) => {
-            let lhs = evaluate(lhs, val, digit)?;
-            let rhs = evaluate(rhs, val, digit)?;
+            let lhs = evaluate(lhs, val, tmp, digit)?;
+            let rhs = evaluate(rhs, val, tmp, digit)?;
             if lhs == rhs {
                 1
             } else {
@@ -327,8 +325,8 @@ fn evaluate(e: &Box<Expr>, val: isize, digit: usize) -> Result<isize, String> {
             }
         }
         Expr::NotEql(lhs, rhs) => {
-            let lhs = evaluate(lhs, val, digit)?;
-            let rhs = evaluate(rhs, val, digit)?;
+            let lhs = evaluate(lhs, val, tmp, digit)?;
+            let rhs = evaluate(rhs, val, tmp, digit)?;
             if lhs != rhs {
                 1
             } else {
@@ -336,16 +334,24 @@ fn evaluate(e: &Box<Expr>, val: isize, digit: usize) -> Result<isize, String> {
             }
         }
         Expr::If(cond, t_branch, f_branch) => {
-            let cond = evaluate(cond, val, digit)?;
+            let cond = evaluate(cond, val, tmp, digit)?;
             return if cond == 1 {
-                evaluate(t_branch, val, digit)
+                evaluate(t_branch, val, tmp, digit)
             } else {
-                evaluate(f_branch, val, digit)
+                evaluate(f_branch, val, tmp, digit)
             };
         }
         Expr::Input(_) => digit as isize,
         Expr::Num(n) => *n,
-        Expr::Var(_) => val,
+        Expr::Var(s) => {
+            if s == "tmp" {
+                tmp
+            } else if s == "val" {
+                val
+            } else {
+                return Err(format!("undefined variable: {}", s));
+            }
+        }
     };
     Ok(res)
 }
@@ -356,11 +362,11 @@ struct Output {
     output: isize,
 }
 
-fn evaluate_all_digits(stmt: &Statement, val: isize) -> Vec<Output> {
+fn evaluate_all_digits(stmt: &Statement, val: isize, tmp: isize) -> Vec<Output> {
     let Statement::Assign(_, e) = stmt;
     let mut options = vec![];
     for digit in 1..10 {
-        if let Ok(res) = evaluate(e, val, digit) {
+        if let Ok(res) = evaluate(e, val, tmp, digit) {
             options.push(Output {
                 digit: digit as usize,
                 output: res,
@@ -375,6 +381,7 @@ fn find_model_number(
     stmts: &[Statement],
     i: usize,
     input: isize,
+    tmp: isize,
     biggest: bool,
 ) -> Option<Vec<usize>> {
     let key = (i, input);
@@ -388,7 +395,15 @@ fn find_model_number(
         return ret;
     }
 
-    let mut options = evaluate_all_digits(&stmts[i], input);
+    let Statement::Assign(s, e) = &stmts[i];
+    if s == "tmp" {
+        let tmp = evaluate(e, input, tmp, 0).unwrap();
+        let ret = find_model_number(memo, stmts, i + 1, input, tmp, biggest);
+        memo.insert(key, ret.clone());
+        return ret;
+    }
+
+    let mut options = evaluate_all_digits(&stmts[i], input, tmp);
     options.sort_by_key(|o| o.digit);
     if biggest {
         options.reverse();
@@ -396,7 +411,7 @@ fn find_model_number(
 
     let mut ret = None;
     for opt in options {
-        if let Some(mut res) = find_model_number(memo, stmts, i + 1, opt.output, biggest) {
+        if let Some(mut res) = find_model_number(memo, stmts, i + 1, opt.output, tmp, biggest) {
             res.insert(0, opt.digit);
             ret = Some(res);
             break;
@@ -409,12 +424,10 @@ fn find_model_number(
 fn solve(biggest: bool) -> usize {
     let insts = parse_input();
     let stmts = run(&insts);
-    /*
     for (i, stmt) in stmts.iter().enumerate() {
         println!("{:02}: {:?}", i, stmt);
     }
-    */
-    let solution = find_model_number(&mut AHashMap::new(), &stmts, 1, 0, biggest);
+    let solution = find_model_number(&mut AHashMap::new(), &stmts, 1, 0, 0, biggest);
     from_digits(&solution.unwrap()[..])
 }
 
@@ -423,6 +436,5 @@ pub fn part1() -> usize {
 }
 
 pub fn part2() -> usize {
-    // solve(false)
-    0
+    solve(false)
 }
