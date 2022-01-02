@@ -5,7 +5,8 @@
     new_uninit,
     once_cell,
     let_else,
-    binary_heap_retain
+    binary_heap_retain,
+    box_patterns
 )]
 
 extern crate ahash;
@@ -28,6 +29,7 @@ mod day09;
 mod day10;
 mod day11;
 mod day12;
+mod day13;
 mod day14;
 mod day15;
 mod day16;
@@ -40,10 +42,10 @@ use std::time::Instant;
 
 fn main() {
     let mut start = Instant::now();
-    println!("part1: {}", day24::part1());
+    println!("part1: {}", day13::part1());
     println!("elapsed: {:?}", Instant::now().duration_since(start));
 
     start = Instant::now();
-    println!("part2: {}", day24::part2());
+    println!("part2: {}", day13::part2());
     println!("elapsed: {:?}", Instant::now().duration_since(start));
 }
