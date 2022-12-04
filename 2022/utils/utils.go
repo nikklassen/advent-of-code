@@ -3,20 +3,30 @@ package utils
 import (
 	"bufio"
 	"strings"
+
+	"golang.org/x/exp/constraints"
 )
 
-func ParseInput[T any](input string, parser func(s string) T) []T {
-	s := bufio.NewScanner(strings.NewReader(input))
-	var ret []T
-	for s.Scan() {
-		line := s.Text()
-		ret = append(ret, parser(line))
+func Map[S ~[]E1, E1, E2 any](s S, f func(s E1) E2) []E2 {
+	ret := make([]E2, 0, len(s))
+	for _, e := range s {
+		ret = append(ret, f(e))
 	}
 	return ret
 }
 
-func Chunks[T any](s []T, n int) [][]T {
-	var ret [][]T
+func MapLines[E any](input string, f func(s string) E) []E {
+	s := bufio.NewScanner(strings.NewReader(input))
+	var ret []E
+	for s.Scan() {
+		line := s.Text()
+		ret = append(ret, f(line))
+	}
+	return ret
+}
+
+func Chunks[S ~[]E, E any](s S, n int) []S {
+	var ret []S
 	for i := 0; i < len(s); i += n {
 		end := i + n
 		if end > len(s) {
@@ -30,4 +40,52 @@ func Chunks[T any](s []T, n int) [][]T {
 type Tuple[T1, T2 any] struct {
 	Item1 T1
 	Item2 T2
+}
+
+func Must[T any](t T, e error) T {
+	if e != nil {
+		panic(e)
+	}
+	return t
+}
+
+func Filter[S ~[]E, E any](s []E, f func(E) bool) []E {
+	var ret S
+	for _, t := range s {
+		if f(t) {
+			ret = append(ret, t)
+		}
+	}
+	return ret
+}
+
+func FilterInplace[S ~[]E, E any](s S, f func(E) bool) []E {
+	var i int
+	for j, t := range s {
+		if f(t) {
+			if i != j {
+				s[i] = s[j]
+			}
+			i++
+		}
+	}
+	return s
+}
+
+func CountFunc[S ~[]E, E any](s S, f func(e E) bool) int {
+	var c int
+	for _, e := range s {
+		if f(e) {
+			c++
+		}
+	}
+	return c
+}
+
+func Sum[S ~[]E, E constraints.Integer | constraints.Float](s S) E {
+	var tot E
+	for _, e := range s {
+		tot += e
+	}
+	return tot
 }

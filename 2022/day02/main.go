@@ -73,10 +73,9 @@ func score(opponent, player RPS) int {
 }
 
 func part1(input string) int {
-	var tot int
-	for _, game := range utils.ParseInput(input, parseGame) {
+	return utils.Sum(utils.Map(utils.MapLines(input, parseGame), func(g game) int {
 		var player RPS
-		switch game.col2 {
+		switch g.col2 {
 		case "X":
 			player = Rock
 		case "Y":
@@ -84,19 +83,17 @@ func part1(input string) int {
 		case "Z":
 			player = Scissors
 		}
-		tot += score(game.opponent, player)
-	}
-	return tot
+		return score(g.opponent, player)
+	}))
 }
 
 func part2(input string) int {
-	var tot int
-	for _, game := range utils.ParseInput(input, parseGame) {
+	return utils.Sum(utils.Map(utils.MapLines(input, parseGame), func(g game) int {
 		var player RPS
-		switch game.col2 {
+		switch g.col2 {
 		// Lose
 		case "X":
-			switch game.opponent {
+			switch g.opponent {
 			case Rock:
 				player = Scissors
 			case Paper:
@@ -106,7 +103,7 @@ func part2(input string) int {
 			}
 		// Draw
 		case "Y":
-			switch game.opponent {
+			switch g.opponent {
 			case Rock:
 				player = Rock
 			case Paper:
@@ -116,7 +113,7 @@ func part2(input string) int {
 			}
 		// Win
 		case "Z":
-			switch game.opponent {
+			switch g.opponent {
 			case Rock:
 				player = Paper
 			case Paper:
@@ -125,9 +122,8 @@ func part2(input string) int {
 				player = Rock
 			}
 		}
-		tot += score(game.opponent, player)
-	}
-	return tot
+		return score(g.opponent, player)
+	}))
 }
 
 func main() {

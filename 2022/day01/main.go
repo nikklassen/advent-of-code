@@ -4,28 +4,28 @@ import (
 	_ "embed"
 	"fmt"
 	"strconv"
-	"strings"
 
+	"github.com/nikklassen/advent-of-code/2022/utils"
 	"golang.org/x/exp/slices"
 )
 
 //go:embed input.txt
 var input string
 
+func noop(line string) string {
+	return line
+}
+
 func computeSumsAsc(input string) []int {
 	var sums []int
 	var sum int
-	for _, line := range strings.Split(input, "\r\n") {
+	for _, line := range utils.MapLines(input, noop) {
 		if line == "" {
 			sums = append(sums, sum)
 			sum = 0
 			continue
 		}
-		v, err := strconv.Atoi(line)
-		if err != nil {
-			panic(err)
-		}
-		sum += v
+		sum += utils.Must(strconv.Atoi(line))
 	}
 	slices.Sort(sums)
 	return sums
@@ -39,12 +39,7 @@ func part1(input string) int {
 func part2(input string) int {
 	sums := computeSumsAsc(input)
 
-	var tot int
-	for _, sum := range sums[len(sums)-3:] {
-		tot += sum
-	}
-
-	return tot
+	return utils.Sum(sums[len(sums)-3:])
 }
 
 func main() {

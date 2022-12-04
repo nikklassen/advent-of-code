@@ -28,46 +28,50 @@ func priority(r rune) int {
 }
 
 func part1(input string) int {
-	var tot int
-	for _, r := range utils.ParseInput(input, parseRucksack) {
-		items := map[rune]bool{}
-		for _, i := range r.Item1 {
-			items[i] = true
-		}
-		for _, i := range r.Item2 {
-			if items[i] {
-				tot += priority(i)
-				break
-			}
-		}
-	}
-	return tot
+	return utils.Sum(
+		utils.Map(
+			utils.MapLines(input, parseRucksack),
+			func(r Rucksack) int {
+				items := map[rune]bool{}
+				for _, i := range r.Item1 {
+					items[i] = true
+				}
+				for _, i := range r.Item2 {
+					if items[i] {
+						return priority(i)
+					}
+				}
+				return 0
+			},
+		))
 }
 
 func part2(input string) int {
-	var tot int
-	for _, rs := range utils.Chunks(utils.ParseInput(input, parseRucksack), 3) {
-		counts := map[rune]int{}
-		for _, r := range rs {
-			items := map[rune]bool{}
-			for _, i := range r.Item1 {
-				items[i] = true
-			}
-			for _, i := range r.Item2 {
-				items[i] = true
-			}
-			for i := range items {
-				counts[i] += 1
-			}
-		}
-		for i, c := range counts {
-			if c == 3 {
-				tot += priority(i)
-				break
-			}
-		}
-	}
-	return tot
+	return utils.Sum(
+		utils.Map(
+			utils.Chunks(utils.MapLines(input, parseRucksack), 3),
+			func(rs []Rucksack) int {
+				counts := map[rune]int{}
+				for _, r := range rs {
+					items := map[rune]bool{}
+					for _, i := range r.Item1 {
+						items[i] = true
+					}
+					for _, i := range r.Item2 {
+						items[i] = true
+					}
+					for i := range items {
+						counts[i] += 1
+					}
+				}
+				for i, c := range counts {
+					if c == 3 {
+						return priority(i)
+					}
+				}
+				return 0
+			},
+		))
 }
 
 func main() {
