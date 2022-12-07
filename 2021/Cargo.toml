@@ -5,7 +5,7 @@ authors = ["Nik Klassen <nikklassen@users.noreply.github.com>"]
 edition = "2021"
 
 [dependencies]
-regex = "1.4.2"
+regex = "1.5.5"
 itertools = "0.10.0"
 lazy_static = "1.4.0"
 pcre2 = "0.2.3"
