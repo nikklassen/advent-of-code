@@ -16,13 +16,19 @@ func Map[S ~[]E1, E1, E2 any](s S, f func(s E1) E2) []E2 {
 }
 
 func MapLines[E any](input string, f func(s string) E) []E {
-	s := bufio.NewScanner(strings.NewReader(input))
 	var ret []E
+	ForEachLines(input, func(s string) {
+		ret = append(ret, f(s))
+	})
+	return ret
+}
+
+func ForEachLines(input string, f func(s string)) {
+	s := bufio.NewScanner(strings.NewReader(input))
 	for s.Scan() {
 		line := s.Text()
-		ret = append(ret, f(line))
+		f(line)
 	}
-	return ret
 }
 
 func Chunks[S ~[]E, E any](s S, n int) []S {
