@@ -15,6 +15,15 @@ func Map[S ~[]E1, E1, E2 any](s S, f func(s E1) E2) []E2 {
 	return ret
 }
 
+func Lines(input string) []string {
+	s := bufio.NewScanner(strings.NewReader(input))
+	var ret []string
+	for s.Scan() {
+		ret = append(ret, s.Text())
+	}
+	return ret
+}
+
 func MapLines[E any](input string, f func(s string) E) []E {
 	var ret []E
 	ForEachLines(input, func(s string) {
@@ -94,4 +103,9 @@ func Sum[S ~[]E, E constraints.Integer | constraints.Float](s S) E {
 		tot += e
 	}
 	return tot
+}
+
+func TryTrimPrefix(s string, prefix string) (string, bool) {
+	s2 := strings.TrimPrefix(s, prefix)
+	return s2, s2 != s
 }
