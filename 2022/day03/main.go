@@ -6,6 +6,8 @@ import (
 	"unicode"
 
 	"github.com/nikklassen/advent-of-code/2022/utils"
+	"github.com/nikklassen/advent-of-code/2022/utils/aocslices"
+	"github.com/nikklassen/advent-of-code/2022/utils/aocstrings"
 )
 
 //go:embed input.txt
@@ -28,9 +30,9 @@ func priority(r rune) int {
 }
 
 func part1(input string) int {
-	return utils.Sum(
-		utils.Map(
-			utils.MapLines(input, parseRucksack),
+	return aocslices.Sum(
+		aocslices.Map(
+			aocslices.Map(aocstrings.Lines(input), parseRucksack),
 			func(r Rucksack) int {
 				items := map[rune]bool{}
 				for _, i := range r.Item1 {
@@ -47,9 +49,9 @@ func part1(input string) int {
 }
 
 func part2(input string) int {
-	return utils.Sum(
-		utils.Map(
-			utils.Chunks(utils.MapLines(input, parseRucksack), 3),
+	return aocslices.Sum(
+		aocslices.Map(
+			aocslices.Chunks(aocslices.Map(aocstrings.Lines(input), parseRucksack), 3),
 			func(rs []Rucksack) int {
 				counts := map[rune]int{}
 				for _, r := range rs {

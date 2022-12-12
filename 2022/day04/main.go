@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/nikklassen/advent-of-code/2022/utils"
+	"github.com/nikklassen/advent-of-code/2022/utils/aocslices"
+	"github.com/nikklassen/advent-of-code/2022/utils/aocstrings"
 )
 
 //go:embed input.txt
@@ -25,7 +27,7 @@ func fullyContained(a Assignments) bool {
 }
 
 func part1(input string) int {
-	return utils.CountFunc(utils.MapLines(input, parseAssignment), fullyContained)
+	return aocslices.CountFunc(aocslices.Map(aocstrings.Lines(input), parseAssignment), fullyContained)
 }
 
 func overlap(a Assignments) bool {
@@ -36,7 +38,7 @@ func overlap(a Assignments) bool {
 }
 
 func part2(input string) int {
-	return utils.CountFunc(utils.MapLines(input, parseAssignment), overlap)
+	return aocslices.CountFunc(aocslices.Map(aocstrings.Lines(input), parseAssignment), overlap)
 }
 
 func main() {

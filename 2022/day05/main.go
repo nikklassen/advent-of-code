@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/nikklassen/advent-of-code/2022/utils"
+	"github.com/nikklassen/advent-of-code/2022/utils/aocstrings"
 )
 
 //go:embed input.txt
@@ -70,7 +71,9 @@ func tops(stacks [][]byte) string {
 
 func part1(input string) string {
 	p := &inputParser{}
-	utils.ForEachLines(input, p.Parse)
+	for _, line := range aocstrings.Lines(input) {
+		p.Parse(line)
+	}
 	for _, m := range p.moves {
 		for i := 0; i < m.count; i++ {
 			moveBoxes(p.stacks, m.start, m.end, 1)
@@ -81,7 +84,9 @@ func part1(input string) string {
 
 func part2(input string) string {
 	p := &inputParser{}
-	utils.ForEachLines(input, p.Parse)
+	for _, line := range aocstrings.Lines(input) {
+		p.Parse(line)
+	}
 	for _, m := range p.moves {
 		moveBoxes(p.stacks, m.start, m.end, m.count)
 	}

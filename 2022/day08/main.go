@@ -4,7 +4,8 @@ import (
 	_ "embed"
 	"fmt"
 
-	"github.com/nikklassen/advent-of-code/2022/utils"
+	"github.com/nikklassen/advent-of-code/2022/utils/aocslices"
+	"github.com/nikklassen/advent-of-code/2022/utils/aocstrings"
 )
 
 //go:embed input.txt
@@ -56,8 +57,8 @@ func isVisible(trees [][]int, i, j int) bool {
 }
 
 func parseTreeGrid(input string) [][]int {
-	return utils.MapLines(input, func(s string) []int {
-		return utils.Map([]byte(s), func(c byte) int {
+	return aocslices.Map(aocstrings.Lines(input), func(s string) []int {
+		return aocslices.Map([]byte(s), func(c byte) int {
 			return int(c) - '0'
 		})
 	})
@@ -131,6 +132,6 @@ func part2(input string) int {
 }
 
 func main() {
-	// fmt.Printf("part 1: %d\n", part1(input))
+	fmt.Printf("part 1: %d\n", part1(input))
 	fmt.Printf("part 2: %d\n", part2(input))
 }

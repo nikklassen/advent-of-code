@@ -6,7 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/nikklassen/advent-of-code/2022/utils"
+	"github.com/nikklassen/advent-of-code/2022/utils/aocslices"
+	"github.com/nikklassen/advent-of-code/2022/utils/aocstrings"
 )
 
 //go:embed input.txt
@@ -46,7 +47,7 @@ func buildDir(dir *directory, lines []string) int {
 			break
 		}
 		n++
-		if path, ok := utils.TryTrimPrefix(s, "dir "); ok {
+		if path, ok := aocstrings.TryTrimPrefix(s, "dir "); ok {
 			sd := &directory{
 				name:   path,
 				parent: dir,
@@ -104,11 +105,11 @@ func print(dir *directory, level int) {
 func newFS(input string) *directory {
 	root := &directory{name: "/"}
 	dir := root
-	lines := utils.Lines(input)[1:]
+	lines := aocstrings.Lines(input)[1:]
 	i := 0
 	for ; i < len(lines); i++ {
 		s := lines[i]
-		if path, ok := utils.TryTrimPrefix(s, "$ cd "); ok {
+		if path, ok := aocstrings.TryTrimPrefix(s, "$ cd "); ok {
 			dir = cd(dir, path)
 			continue
 		}
@@ -126,7 +127,7 @@ func newFS(input string) *directory {
 func part1(input string) int {
 	root := newFS(input)
 	found := findSmallDirs(root)
-	return utils.Sum(utils.Map(found, func(d *directory) int { return d.size }))
+	return aocslices.Sum(aocslices.Map(found, func(d *directory) int { return d.size }))
 }
 
 func findSmallest(d *directory, toDelete, smallest int) int {

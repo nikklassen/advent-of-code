@@ -8,6 +8,8 @@ import (
 
 	"github.com/nikklassen/advent-of-code/2022/grid"
 	"github.com/nikklassen/advent-of-code/2022/utils"
+	"github.com/nikklassen/advent-of-code/2022/utils/aocmath"
+	"github.com/nikklassen/advent-of-code/2022/utils/aocstrings"
 )
 
 type dir int
@@ -38,8 +40,8 @@ var input string
 
 func moveKnot(head, tail grid.Index) grid.Index {
 	dist := head.Sub(tail)
-	absX := utils.Abs(dist.X)
-	absY := utils.Abs(dist.Y)
+	absX := aocmath.Abs(dist.X)
+	absY := aocmath.Abs(dist.Y)
 	if absX <= 1 && absY <= 1 {
 		return tail
 	}
@@ -56,15 +58,15 @@ func moveKnot(head, tail grid.Index) grid.Index {
 		return tail.Add(leftDir)
 	}
 	return tail.Add(grid.Index{
-		X: utils.Sign(dist.X),
-		Y: utils.Sign(dist.Y),
+		X: aocmath.Sign(dist.X),
+		Y: aocmath.Sign(dist.Y),
 	})
 }
 
 func moveRope(input string, length int) int {
 	rope := make([]grid.Index, length)
 	visited := map[grid.Index]bool{rope[length-1]: true}
-	for _, s := range utils.Lines(input) {
+	for _, s := range aocstrings.Lines(input) {
 		dirString, dist, _ := strings.Cut(s, " ")
 		var d dir
 		switch dirString {
@@ -101,10 +103,10 @@ func part1(input string) int {
 func printRope(rope []grid.Index) {
 	maxX, minX, maxY, minY := 0, 0, 0, 0
 	for _, k := range rope {
-		maxX = utils.Max(maxX, k.X)
-		minX = utils.Min(minX, k.X)
-		maxY = utils.Max(maxY, k.Y)
-		minY = utils.Min(minY, k.Y)
+		maxX = aocmath.Max(maxX, k.X)
+		minX = aocmath.Min(minX, k.X)
+		maxY = aocmath.Max(maxY, k.Y)
+		minY = aocmath.Min(minY, k.Y)
 	}
 	var grid [][]byte
 	for y := minY - 1; y < maxY+2; y++ {

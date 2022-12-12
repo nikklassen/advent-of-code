@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	"github.com/nikklassen/advent-of-code/2022/utils"
+	"github.com/nikklassen/advent-of-code/2022/utils/aocslices"
+	"github.com/nikklassen/advent-of-code/2022/utils/aocstrings"
 	"golang.org/x/exp/slices"
 )
 
@@ -19,7 +21,7 @@ func noop(line string) string {
 func computeSumsAsc(input string) []int {
 	var sums []int
 	var sum int
-	for _, line := range utils.MapLines(input, noop) {
+	for _, line := range aocstrings.Lines(input) {
 		if line == "" {
 			sums = append(sums, sum)
 			sum = 0
@@ -39,7 +41,7 @@ func part1(input string) int {
 func part2(input string) int {
 	sums := computeSumsAsc(input)
 
-	return utils.Sum(sums[len(sums)-3:])
+	return aocslices.Sum(sums[len(sums)-3:])
 }
 
 func main() {

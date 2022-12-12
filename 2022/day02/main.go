@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nikklassen/advent-of-code/2022/utils"
+	"github.com/nikklassen/advent-of-code/2022/utils/aocslices"
+	"github.com/nikklassen/advent-of-code/2022/utils/aocstrings"
 )
 
 //go:embed input.txt
@@ -73,7 +74,8 @@ func score(opponent, player RPS) int {
 }
 
 func part1(input string) int {
-	return utils.Sum(utils.Map(utils.MapLines(input, parseGame), func(g game) int {
+	return aocslices.Sum(aocslices.Map(aocstrings.Lines(input), func(line string) int {
+		g := parseGame(line)
 		var player RPS
 		switch g.col2 {
 		case "X":
@@ -88,7 +90,8 @@ func part1(input string) int {
 }
 
 func part2(input string) int {
-	return utils.Sum(utils.Map(utils.MapLines(input, parseGame), func(g game) int {
+	return aocslices.Sum(aocslices.Map(aocstrings.Lines(input), func(line string) int {
+		g := parseGame(line)
 		var player RPS
 		switch g.col2 {
 		// Lose
