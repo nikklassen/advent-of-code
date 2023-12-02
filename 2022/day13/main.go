@@ -153,8 +153,8 @@ func part2(input string) int {
 		p := parsePacket(line)
 		packets = append(packets, p)
 	}
-	slices.SortFunc(packets, func(p1, p2 segment) bool {
-		return compare(p1, p2) == -1
+	slices.SortFunc(packets, func(p1, p2 segment) int {
+		return compare(p1, p2)
 	})
 	key := 1
 	for i, p := range packets {
