@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/nikklassen/advent-of-code/2022/utils"
-	"github.com/nikklassen/advent-of-code/2022/utils/aocstrings"
+	"github.com/nikklassen/advent-of-code/shared/utils"
+	"github.com/nikklassen/advent-of-code/shared/utils/aocstrings"
 )
 
 //go:embed input.txt

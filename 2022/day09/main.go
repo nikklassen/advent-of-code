@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/nikklassen/advent-of-code/2022/grid"
-	"github.com/nikklassen/advent-of-code/2022/utils"
-	"github.com/nikklassen/advent-of-code/2022/utils/aocmath"
-	"github.com/nikklassen/advent-of-code/2022/utils/aocstrings"
+	"github.com/nikklassen/advent-of-code/shared/grid"
+	"github.com/nikklassen/advent-of-code/shared/utils"
+	"github.com/nikklassen/advent-of-code/shared/utils/aocmath"
+	"github.com/nikklassen/advent-of-code/shared/utils/aocstrings"
 )
 
 type dir int

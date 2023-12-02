@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/nikklassen/advent-of-code/2022/grid"
-	"github.com/nikklassen/advent-of-code/2022/utils/aocstrings"
+	"github.com/nikklassen/advent-of-code/shared/grid"
+	"github.com/nikklassen/advent-of-code/shared/utils/aocstrings"
 )
 
 //go:embed input.txt

@@ -4,8 +4,8 @@ import (
 	_ "embed"
 	"fmt"
 
-	"github.com/nikklassen/advent-of-code/2022/utils/aocslices"
-	"github.com/nikklassen/advent-of-code/2022/utils/aocstrings"
+	"github.com/nikklassen/advent-of-code/shared/utils/aocslices"
+	"github.com/nikklassen/advent-of-code/shared/utils/aocstrings"
 )
 
 //go:embed input.txt
