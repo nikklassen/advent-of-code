@@ -3,7 +3,10 @@ package aocstrings
 import (
 	"bufio"
 	"slices"
+	"strconv"
 	"strings"
+
+	"github.com/nikklassen/advent-of-code/shared/utils"
 )
 
 func Lines(input string) []string {
@@ -24,4 +27,16 @@ func Reverse(s string) string {
 	b := []byte(s)
 	slices.Reverse(b)
 	return string(b)
+}
+
+func MustAtoi(s string) int {
+	return utils.Must(strconv.Atoi(s))
+}
+
+func RuneGrid(s string) [][]rune {
+	var grid [][]rune
+	for _, row := range Lines(s) {
+		grid = append(grid, []rune(row))
+	}
+	return grid
 }

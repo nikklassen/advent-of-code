@@ -29,3 +29,21 @@ func (g Grid[T]) Get(i Index) (T, bool) {
 func (g Grid[T]) Set(i Index, t T) {
 	g[i.Y][i.X] = t
 }
+
+func NewGridSize[T any](cols, rows int) Grid[T] {
+	var g Grid[T]
+	for y := 0; y < rows; y++ {
+		g = append(g, make([]T, cols))
+	}
+	return g
+}
+
+func Adjacent(i Index) []Index {
+	var ret []Index
+	for x := i.X - 1; x < i.X+2; x++ {
+		for y := i.Y - 1; y < i.Y+2; y++ {
+			ret = append(ret, Index{X: x, Y: y})
+		}
+	}
+	return ret
+}

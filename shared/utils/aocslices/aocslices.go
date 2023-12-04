@@ -78,3 +78,14 @@ func FlatMap[S ~[]E1, E1, E2 any](s S, f func(s E1) []E2) []E2 {
 	}
 	return ret
 }
+
+func TakeWhile[S ~[]E, E any](s S, f func(s E) bool) S {
+	var ret S
+	for _, e := range s {
+		if !f(e) {
+			break
+		}
+		ret = append(ret, e)
+	}
+	return ret
+}
