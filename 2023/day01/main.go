@@ -12,8 +12,8 @@ import (
 
 var (
 	//go:embed input.txt
-	input  string
-	digits = []string{
+	input      string
+	digitWords = []string{
 		"one",
 		"two",
 		"three",
@@ -27,27 +27,25 @@ var (
 )
 
 func findDigit(line string, reverse, useWords bool) int {
-	idx := len(line)
+	i := 0
+	inc := 1
 	if reverse {
-		line = aocstrings.Reverse(line)
+		i = len(line) - 1
+		inc = -1
 	}
-	var val int
-	if useWords {
-		for d, digit := range digits {
-			if reverse {
-				digit = aocstrings.Reverse(digit)
-			}
-			i := strings.Index(line, digit)
-			if i != -1 && i < idx {
-				idx = i
-				val = d + 1
+	for {
+		if useWords {
+			for d, digit := range digitWords {
+				if strings.HasPrefix(line[i:], digit) {
+					return d + 1
+				}
 			}
 		}
+		if unicode.IsDigit([]rune(line)[i]) {
+			return int(line[i] - '0')
+		}
+		i += inc
 	}
-	if digitIdx := strings.IndexFunc(line, unicode.IsDigit); digitIdx != -1 && digitIdx < idx {
-		val = int(line[digitIdx] - '0')
-	}
-	return val
 }
 
 func extractValues(input string, useWords bool) []int {
