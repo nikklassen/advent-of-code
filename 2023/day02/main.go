@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nikklassen/advent-of-code/shared/utils"
 	"github.com/nikklassen/advent-of-code/shared/utils/aocslices"
 	"github.com/nikklassen/advent-of-code/shared/utils/aocstrings"
 )
@@ -28,12 +27,12 @@ outer:
 		for _, set := range strings.Split(sets, "; ") {
 			for _, balls := range strings.Split(set, ", ") {
 				count, colour, _ := strings.Cut(balls, " ")
-				if utils.MustAtoi(count) > ballCount[colour] {
+				if aocstrings.MustAtoi(count) > ballCount[colour] {
 					continue outer
 				}
 			}
 		}
-		ret = append(ret, utils.MustAtoi(game[5:]))
+		ret = append(ret, aocstrings.MustAtoi(game[5:]))
 	}
 	return ret
 }
@@ -50,7 +49,7 @@ func minimumSetPowers(input string) []int {
 		for _, set := range strings.Split(sets, "; ") {
 			for _, balls := range strings.Split(set, ", ") {
 				count, colour, _ := strings.Cut(balls, " ")
-				minBalls[colour] = max(minBalls[colour], utils.MustAtoi(count))
+				minBalls[colour] = max(minBalls[colour], aocstrings.MustAtoi(count))
 			}
 		}
 		ret = append(ret, minBalls["red"]*minBalls["green"]*minBalls["blue"])

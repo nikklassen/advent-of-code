@@ -36,7 +36,7 @@ func parseInput(input string) ([][]int, grid.Index, grid.Index) {
 }
 
 func neighbours(pos grid.Index, g grid.Grid[int], climbDown bool) []grid.Index {
-	currHeight, _ := g.Get(pos)
+	currHeight := g.Get(pos)
 	var allowedMove func(height int) bool
 	if climbDown {
 		allowedMove = func(height int) bool {
@@ -51,19 +51,19 @@ func neighbours(pos grid.Index, g grid.Grid[int], climbDown bool) []grid.Index {
 	var neighbours []grid.Index
 
 	up := pos.Add(grid.Index{Y: 1})
-	if upHeight, ok := g.Get(up); ok && allowedMove(upHeight) {
+	if upHeight, ok := g.Lookup(up); ok && allowedMove(upHeight) {
 		neighbours = append(neighbours, up)
 	}
 	down := pos.Add(grid.Index{Y: -1})
-	if downHeight, ok := g.Get(down); ok && allowedMove(downHeight) {
+	if downHeight, ok := g.Lookup(down); ok && allowedMove(downHeight) {
 		neighbours = append(neighbours, down)
 	}
 	left := pos.Add(grid.Index{X: -1})
-	if leftHeight, ok := g.Get(left); ok && allowedMove(leftHeight) {
+	if leftHeight, ok := g.Lookup(left); ok && allowedMove(leftHeight) {
 		neighbours = append(neighbours, left)
 	}
 	right := pos.Add(grid.Index{X: 1})
-	if rightHeight, ok := g.Get(right); ok && allowedMove(rightHeight) {
+	if rightHeight, ok := g.Lookup(right); ok && allowedMove(rightHeight) {
 		neighbours = append(neighbours, right)
 	}
 
@@ -120,7 +120,7 @@ func findAllStarts(g grid.Grid[int], end grid.Index) int {
 		}
 		visited[s.pos] = true
 		for _, n := range neighbours(s.pos, g, false) {
-			if v, _ := stepsG.Get(n); s.steps+1 < v {
+			if v := stepsG.Get(n); s.steps+1 < v {
 				stepsG.Set(n, s.steps+1)
 			}
 			fringe = append(fringe, state{n, s.steps + 1})
@@ -133,7 +133,7 @@ func findAllStarts(g grid.Grid[int], end grid.Index) int {
 			if v != 0 {
 				continue
 			}
-			steps, _ := stepsG.Get(grid.Index{X: x, Y: y})
+			steps := stepsG.Get(grid.Index{X: x, Y: y})
 			if steps < min {
 				min = steps
 			}

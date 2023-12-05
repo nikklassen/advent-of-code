@@ -41,6 +41,14 @@ func Sum[S ~[]E, E constraints.Integer | constraints.Float](s S) E {
 	return tot
 }
 
+func Product[S ~[]E, E constraints.Integer | constraints.Float](s S) E {
+	product := E(1)
+	for _, e := range s {
+		product *= e
+	}
+	return product
+}
+
 func Filter[S ~[]E, E any](s []E, f func(E) bool) []E {
 	var ret S
 	for _, t := range s {
