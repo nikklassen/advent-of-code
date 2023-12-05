@@ -8,9 +8,13 @@ import (
 )
 
 var (
-	//go:embed input.txt
+	//go:embed test_input.txt
 	input string
 )
+
+func TODO(input string) []int {
+
+}
 
 func part1(input string) int {
 	return aocslices.Sum(TODO(input))
