@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/nikklassen/advent-of-code/shared/utils"
+	"github.com/nikklassen/advent-of-code/shared/utils/aocslices"
 )
 
 func Lines(input string) []string {
@@ -39,4 +40,8 @@ func RuneGrid(s string) [][]rune {
 		grid = append(grid, []rune(row))
 	}
 	return grid
+}
+
+func SpaceSeparatedInts(s string) []int {
+	return aocslices.Map(strings.Split(s, " "), MustAtoi)
 }
