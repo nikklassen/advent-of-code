@@ -2,12 +2,17 @@ package aocstrings
 
 import (
 	"bufio"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
 
 	"github.com/nikklassen/advent-of-code/shared/utils"
 	"github.com/nikklassen/advent-of-code/shared/utils/aocslices"
+)
+
+var (
+	ws = regexp.MustCompile(`\s+`)
 )
 
 func Lines(input string) []string {
@@ -43,5 +48,6 @@ func RuneGrid(s string) [][]rune {
 }
 
 func SpaceSeparatedInts(s string) []int {
-	return aocslices.Map(strings.Split(s, " "), MustAtoi)
+	parts := ws.Split(s, -1)
+	return aocslices.Map(parts, MustAtoi)
 }
