@@ -97,3 +97,19 @@ func TakeWhile[S ~[]E, E any](s S, f func(s E) bool) S {
 	}
 	return ret
 }
+
+func Fold[S ~[]E, E, A any](s S, init A, f func(s E, a A) A) A {
+	curr := init
+	for _, e := range s {
+		curr = f(e, curr)
+	}
+	return curr
+}
+
+func FoldR[S ~[]E, E, A any](s S, init A, f func(s E, a A) A) A {
+	curr := init
+	for i := len(s) - 1; i >= 0; i-- {
+		curr = f(s[i], curr)
+	}
+	return curr
+}
