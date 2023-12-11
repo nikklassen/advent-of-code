@@ -25,7 +25,8 @@ func downloadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fileName := fmt.Sprintf("%d/day%02d", *year, *day)
-	if strings.HasSuffix(r.URL.Path, "test") {
+	isTestInput := strings.HasSuffix(r.URL.Path, "test")
+	if isTestInput {
 		fileName += "/test_input.txt"
 	} else {
 		fileName += "/input.txt"
@@ -34,11 +35,16 @@ func downloadFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	if isTestInput {
+		fmt.Printf("test ")
+	}
 	fmt.Println("input written")
 }
 
 func main() {
 	flag.Parse()
+
+	fmt.Println("Waiting for input files")
 
 	http.HandleFunc("/", downloadFile)
 	http.ListenAndServe(":8080", nil)
