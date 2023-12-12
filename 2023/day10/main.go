@@ -9,45 +9,68 @@ import (
 )
 
 var (
-	//go:embed test_input.txt
+	//go:embed input.txt
 	input string
 )
 
-func nextTile(g grid.Grid[rune], idx grid.Index, prev grid.Index) grid.Index {
-	switch g.Get(idx) {
-	case '|':
-		if prev.Y < idx.Y {
-			return grid.I(idx.X, idx.Y+1)
-		}
-		return grid.I(idx.X, idx.Y-1)
-	case '-':
-		if prev.X < idx.X {
-			return grid.I(idx.X+1, idx.Y)
-		}
-		return grid.I(idx.X-1, idx.Y)
-	case 'L':
-		if prev.Y < idx.Y {
-			return grid.I(idx.X+1, idx.Y)
-		}
-		return grid.I(idx.X, idx.Y-1)
-	case 'J':
-		if prev.Y < idx.Y {
-			return grid.I(idx.X-1, idx.Y)
-		}
-		return grid.I(idx.X, idx.Y-1)
-	case '7':
-		if prev.X < idx.X {
-			return grid.I(idx.X, idx.Y+1)
-		}
-		return grid.I(idx.X-1, idx.Y)
-	case 'F':
-		if prev.Y > idx.Y {
-			return grid.I(idx.X+1, idx.Y)
-		}
-		return grid.I(idx.X, idx.Y+1)
-	default:
-		panic(fmt.Sprintf("unknown movement, tile %v, previous %v", g.Get(idx), prev))
+func nextTile(g grid.Grid[rune], idx grid.Index, prev grid.Index) (grid.Index, bool) {
+	c, ok := g.Lookup(idx)
+	if !ok {
+		return grid.Index{}, false
 	}
+	switch {
+	case idx.X == prev.X:
+		switch c {
+		case '|':
+			if idx.Y == prev.Y+1 {
+				return grid.I(idx.X, idx.Y+1), true
+			} else if idx.Y == prev.Y-1 {
+				return grid.I(idx.X, idx.Y-1), true
+			}
+		case '7':
+			if idx.Y == prev.Y-1 {
+				return grid.I(idx.X-1, idx.Y), true
+			}
+		case 'F':
+			if idx.Y == prev.Y-1 {
+				return grid.I(idx.X+1, idx.Y), true
+			}
+		case 'J':
+			if idx.Y == prev.Y+1 {
+				return grid.I(idx.X-1, idx.Y), true
+			}
+		case 'L':
+			if idx.Y == prev.Y+1 {
+				return grid.I(idx.X+1, idx.Y), true
+			}
+		}
+	case idx.Y == prev.Y:
+		switch c {
+		case '-':
+			if idx.X == prev.X+1 {
+				return grid.I(idx.X+1, idx.Y), true
+			} else if idx.X == prev.X-1 {
+				return grid.I(idx.X-1, idx.Y), true
+			}
+		case '7':
+			if idx.X == prev.X+1 {
+				return grid.I(idx.X, idx.Y+1), true
+			}
+		case 'F':
+			if idx.X == prev.X-1 {
+				return grid.I(idx.X, idx.Y+1), true
+			}
+		case 'J':
+			if idx.X == prev.X+1 {
+				return grid.I(idx.X, idx.Y-1), true
+			}
+		case 'L':
+			if idx.X == prev.X-1 {
+				return grid.I(idx.X, idx.Y-1), true
+			}
+		}
+	}
+	return grid.Index{}, false
 }
 
 func findFurthestPoint(input string) int {
@@ -62,23 +85,24 @@ outer:
 			}
 		}
 	}
-	fmt.Println(start)
-	var path1, path2 grid.Index
-adjLoop:
+	var nexts []grid.Index
 	for _, i := range grid.Adjacent(start) {
-		for _, j := range grid.Adjacent(start) {
-			if nextTile(g, i, start) == j {
-				path1, path2 = i, j
-				break adjLoop
+		for _, j := range grid.Adjacent(i) {
+			if next, ok := nextTile(g, i, j); ok && next == start {
+				nexts = append(nexts, i)
+				break
 			}
 		}
 	}
+	path1, path2 := nexts[0], nexts[1]
 	path1Prev, path2Prev := start, start
 	steps := 1
 	for {
-		path1Next := nextTile(g, path1, path1Prev)
-		path2Next := nextTile(g, path2, path2Prev)
-		if path1Next == path2Next || path1Next == path2 && path2Next == path1 {
+		path1Next, _ := nextTile(g, path1, path1Prev)
+		path2Next, _ := nextTile(g, path2, path2Prev)
+		if path1Next == path2Next {
+			return steps + 1
+		} else if path1Next == path2 && path2Next == path1 {
 			return steps
 		}
 		steps++

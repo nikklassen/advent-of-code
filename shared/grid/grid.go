@@ -53,6 +53,9 @@ func Adjacent(i Index) []Index {
 	var ret []Index
 	for x := i.X - 1; x < i.X+2; x++ {
 		for y := i.Y - 1; y < i.Y+2; y++ {
+			if x == 0 && y == 0 {
+				continue
+			}
 			ret = append(ret, Index{X: x, Y: y})
 		}
 	}
