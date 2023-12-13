@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
 )
 
@@ -42,10 +45,20 @@ func downloadFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	ctx := context.Background()
+
 	flag.Parse()
 
-	fmt.Println("Waiting for input files")
+	fmt.Printf("Waiting to write test inputs to %d/day%02d\n", *year, *day)
 
 	http.HandleFunc("/", downloadFile)
-	http.ListenAndServe(":8080", nil)
+	go func() {
+		if err := http.ListenAndServe(":8080", nil); !errors.Is(err, http.ErrServerClosed) {
+			fmt.Fprintln(os.Stderr, "Server exited with an error:", err.Error())
+		}
+	}()
+	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
+	defer cancel()
+
+	<-ctx.Done()
 }
