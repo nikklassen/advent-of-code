@@ -84,6 +84,16 @@ func (g Grid[T]) Fill(t T) {
 	}
 }
 
+func (g Grid[T]) FilterValid(idxs []Index) []Index {
+	var ret []Index
+	for _, idx := range idxs {
+		if _, ok := g.Lookup(idx); ok {
+			ret = append(ret, idx)
+		}
+	}
+	return ret
+}
+
 func NewGridSize[T any](cols, rows int) Grid[T] {
 	var g Grid[T]
 	for y := 0; y < rows; y++ {
