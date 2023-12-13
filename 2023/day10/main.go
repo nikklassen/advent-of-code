@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/nikklassen/advent-of-code/shared/grid"
+	"github.com/nikklassen/advent-of-code/shared/utils/aocslices"
 	"github.com/nikklassen/advent-of-code/shared/utils/aocstrings"
 )
 
@@ -73,28 +74,34 @@ func nextTile(g grid.Grid[rune], idx grid.Index, prev grid.Index) (grid.Index, b
 	return grid.Index{}, false
 }
 
-func findFurthestPoint(input string) int {
-	g := grid.Grid[rune](aocstrings.RuneGrid(input))
-	var start grid.Index
-outer:
+func findStart(g grid.Grid[rune]) grid.Index {
 	for y, row := range g {
 		for x, col := range row {
 			if col == 'S' {
-				start = grid.I(x, y)
-				break outer
+				return grid.I(x, y)
 			}
 		}
 	}
-	var nexts []grid.Index
+	panic("Start not found")
+}
+
+func findEnds(g grid.Grid[rune], start grid.Index) (grid.Index, grid.Index) {
+	var ends []grid.Index
 	for _, i := range grid.Adjacent(start) {
 		for _, j := range grid.Adjacent(i) {
 			if next, ok := nextTile(g, i, j); ok && next == start {
-				nexts = append(nexts, i)
+				ends = append(ends, i)
 				break
 			}
 		}
 	}
-	path1, path2 := nexts[0], nexts[1]
+	return ends[0], ends[1]
+}
+
+func findFurthestPoint(input string) int {
+	g := grid.Grid[rune](aocstrings.RuneGrid(input))
+	start := findStart(g)
+	path1, path2 := findEnds(g, start)
 	path1Prev, path2Prev := start, start
 	steps := 1
 	for {
@@ -115,9 +122,34 @@ func part1(input string) int {
 	return findFurthestPoint(input)
 }
 
-// func part2(input string) int {
-// 	return aocslices.Sum(TODO(input))
-// }
+func expandGrid(g grid.Grid[rune]) grid.Grid[rune] {
+	newG := grid.NewGridSize[rune](len(g[0])*2+1, len(g)*2+1)
+	for _, x := range newG[0] {
+	}
+}
+
+func findInside(input string) int {
+	g := grid.Grid[rune](aocstrings.RuneGrid(input))
+	start := findStart(g)
+	path1, _ := findEnds(g, start)
+	inside := map[grid.Index]bool{}
+	path1Prev := start
+	for {
+		path1Next, _ := nextTile(g, path1, path1Prev)
+		if path1Next == start {
+			break
+		}
+		for _, idx := range drawRays(g, path1Next) {
+			inside[idx] = true
+		}
+		path1 = path1Next
+	}
+	return len(inside)
+}
+
+func part2(input string) int {
+	return findInside(input)
+}
 
 func main() {
 	fmt.Printf("part 1: %d\n", part1(input))
