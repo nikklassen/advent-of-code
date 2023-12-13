@@ -4,7 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 
-	"github.com/nikklassen/advent-of-code/shared/utils/aocslices"
+	"github.com/nikklassen/advent-of-code/shared/utils/aocstrings"
 )
 
 var (
@@ -12,16 +12,13 @@ var (
 	input string
 )
 
-func TODO(input string) []int {
-
-}
-
 func part1(input string) int {
-	return aocslices.Sum(TODO(input))
+	lines := aocstrings.Lines(input)
+	return 0
 }
 
 // func part2(input string) int {
-// 	return aocslices.Sum(TODO(input))
+// 	return 0
 // }
 
 func main() {
