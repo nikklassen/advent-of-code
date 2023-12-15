@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nikklassen/advent-of-code/shared/utils"
 	"github.com/nikklassen/advent-of-code/shared/utils/aocslices"
 	"github.com/nikklassen/advent-of-code/shared/utils/aocstrings"
+	"github.com/nikklassen/advent-of-code/shared/utils/memo"
 )
 
 var (
@@ -25,16 +25,10 @@ func decrementPattern(pattern string) string {
 	return "1" + string(pattern[1]-1) + pattern[2:]
 }
 
-type cacheKey utils.Tuple3[string, string, bool]
+var countArrangements func(string, string, bool) int
 
-var cache = map[cacheKey]int{}
-
-func countArrangements(line string, pattern string, inPattern bool) int {
-	key := cacheKey{line, pattern, inPattern}
-	if v, ok := cache[key]; ok {
-		return v
-	}
-	inner := func(line string, pattern string, inPattern bool) int {
+func init() {
+	countArrangements = memo.Memo3x1(func(line string, pattern string, inPattern bool) int {
 		var skipNext bool
 		if len(pattern) > 0 && pattern[0] == '0' {
 			if len(pattern) == 1 {
@@ -64,10 +58,7 @@ func countArrangements(line string, pattern string, inPattern bool) int {
 			}
 		}
 		return tot
-	}
-	v := inner(line, pattern, inPattern)
-	cache[key] = v
-	return v
+	})
 }
 
 func part1(input string) int {
