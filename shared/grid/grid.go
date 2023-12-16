@@ -24,6 +24,10 @@ func I(x, y int) Index {
 
 type Grid[T any] [][]T
 
+func (g Grid[T]) LenCols() int {
+	return len(g[0])
+}
+
 func (g Grid[T]) Lookup(i Index) (T, bool) {
 	if i.Y >= 0 && i.Y < len(g) && i.X >= 0 && i.X < len(g[i.Y]) {
 		return g[i.Y][i.X], true
