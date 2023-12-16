@@ -1,8 +1,6 @@
 package aocstrings
 
 import (
-	"bufio"
-	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -11,17 +9,14 @@ import (
 	"github.com/nikklassen/advent-of-code/shared/utils/aocslices"
 )
 
-var (
-	ws = regexp.MustCompile(`\s+`)
-)
-
+// Lines of the string.
 func Lines(input string) []string {
-	s := bufio.NewScanner(strings.NewReader(input))
-	var ret []string
-	for s.Scan() {
-		ret = append(ret, s.Text())
-	}
-	return ret
+	return strings.Split(strings.TrimSpace(input), "\n")
+}
+
+// Paragrahs of the string.
+func Paragraphs(input string) []string {
+	return strings.Split(strings.TrimSpace(input), "\n\n")
 }
 
 func TryTrimPrefix(s string, prefix string) (string, bool) {
@@ -48,6 +43,18 @@ func RuneGrid(s string) [][]rune {
 }
 
 func SpaceSeparatedInts(s string) []int {
-	parts := ws.Split(s, -1)
-	return aocslices.Map(parts, MustAtoi)
+	return aocslices.Map(strings.Fields(s), MustAtoi)
+}
+
+// Set rune `i` of string `s` to `r`.
+func Set(s string, i int, r rune) string {
+	var ret string
+	if i > 0 {
+		ret = s[:i]
+	}
+	ret += string(r)
+	if i < len(s) {
+		ret += s[i+1:]
+	}
+	return ret
 }

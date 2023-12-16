@@ -94,6 +94,18 @@ func (g Grid[T]) FilterValid(idxs []Index) []Index {
 	return ret
 }
 
+func (g Grid[T]) Transpose() Grid[T] {
+	var transposed Grid[T]
+	for col := 0; col < len(g[0]); col++ {
+		var newRow []T
+		for _, row := range g {
+			newRow = append(newRow, row[col])
+		}
+		transposed = append(transposed, newRow)
+	}
+	return Grid[T](transposed)
+}
+
 func NewGridSize[T any](cols, rows int) Grid[T] {
 	var g Grid[T]
 	for y := 0; y < rows; y++ {
