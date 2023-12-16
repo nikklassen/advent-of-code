@@ -57,8 +57,8 @@ func (g Grid[T]) Cells() []T {
 }
 
 type IndexedCell[T any] struct {
-	Idx  Index
-	Cell T
+	Idx   Index
+	Value T
 }
 
 // Cells of the grid in row-major order.
@@ -66,7 +66,7 @@ func (g Grid[T]) IndexedCells() []IndexedCell[T] {
 	ret := make([]IndexedCell[T], 0, len(g)*len(g[0]))
 	for y, row := range g {
 		for x, c := range row {
-			ret = append(ret, IndexedCell[T]{Idx: I(x, y), Cell: c})
+			ret = append(ret, IndexedCell[T]{Idx: I(x, y), Value: c})
 		}
 	}
 	return ret

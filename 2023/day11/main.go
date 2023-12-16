@@ -52,7 +52,7 @@ func findTotalDistance(input string, expansionFactor int) int {
 	g := grid.Grid[rune](aocstrings.RuneGrid(input))
 	var stars []*star
 	for _, ic := range g.IndexedCells() {
-		if ic.Cell != '#' {
+		if ic.Value != '#' {
 			continue
 		}
 		stars = append(stars, &star{

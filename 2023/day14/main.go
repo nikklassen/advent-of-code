@@ -15,7 +15,7 @@ var (
 
 func roll(g grid.Grid[rune]) {
 	for _, c := range g.IndexedCells() {
-		if c.Cell != 'O' {
+		if c.Value != 'O' {
 			continue
 		}
 		idx := c.Idx

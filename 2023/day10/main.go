@@ -78,7 +78,7 @@ func nextTile(g grid.Grid[rune], idx grid.Index, prev grid.Index) (grid.Index, b
 
 func findStart(g grid.Grid[rune]) grid.Index {
 	for _, ic := range g.IndexedCells() {
-		if ic.Cell == 'S' {
+		if ic.Value == 'S' {
 			return ic.Idx
 		}
 	}
@@ -138,7 +138,7 @@ func expandGrid(g grid.Grid[*pathCell]) grid.Grid[*floodableCell] {
 	for _, ic := range g.IndexedCells() {
 		x := ic.Idx.X
 		y := ic.Idx.Y
-		pc := ic.Cell
+		pc := ic.Value
 
 		c := rune('.')
 		if pc.isPath {
@@ -178,7 +178,7 @@ func expandGrid(g grid.Grid[*pathCell]) grid.Grid[*floodableCell] {
 func walkPath(g grid.Grid[rune]) grid.Grid[*pathCell] {
 	pg := grid.FromGridSize[*pathCell](g)
 	for _, ic := range g.IndexedCells() {
-		pg.Set(ic.Idx, &pathCell{c: ic.Cell})
+		pg.Set(ic.Idx, &pathCell{c: ic.Value})
 	}
 	start := findStart(g)
 	pg.Get(start).isPath = true
