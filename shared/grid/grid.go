@@ -2,26 +2,6 @@ package grid
 
 import "fmt"
 
-type Index struct{ X, Y int }
-
-func (i Index) Add(i2 Index) Index {
-	return Index{
-		X: i.X + i2.X,
-		Y: i.Y + i2.Y,
-	}
-}
-
-func (i Index) Sub(i2 Index) Index {
-	return Index{
-		X: i.X - i2.X,
-		Y: i.Y - i2.Y,
-	}
-}
-
-func I(x, y int) Index {
-	return Index{X: x, Y: y}
-}
-
 type Grid[T any] [][]T
 
 func (g Grid[T]) LenCols() int {
@@ -67,6 +47,17 @@ func (g Grid[T]) IndexedCells() []IndexedCell[T] {
 	for y, row := range g {
 		for x, c := range row {
 			ret = append(ret, IndexedCell[T]{Idx: I(x, y), Value: c})
+		}
+	}
+	return ret
+}
+
+// Cells of the grid in column-major order.
+func (g Grid[T]) IndexedCellsByColumn() []IndexedCell[T] {
+	ret := make([]IndexedCell[T], 0, len(g)*g.LenCols())
+	for x := 0; x < g.LenCols(); x++ {
+		for y, row := range g {
+			ret = append(ret, IndexedCell[T]{Idx: I(x, y), Value: row[x]})
 		}
 	}
 	return ret
