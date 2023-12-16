@@ -24,6 +24,11 @@ func TryTrimPrefix(s string, prefix string) (string, bool) {
 	return s2, s2 != s
 }
 
+func TryTrimSuffix(s string, suffix string) (string, bool) {
+	s2 := strings.TrimSuffix(s, suffix)
+	return s2, s2 != s
+}
+
 func Reverse(s string) string {
 	b := []byte(s)
 	slices.Reverse(b)
