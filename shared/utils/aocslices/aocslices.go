@@ -113,3 +113,11 @@ func FoldR[S ~[]E, E, A any](s S, init A, f func(s E, a A) A) A {
 	}
 	return curr
 }
+
+func ToSet[S ~[]E, E comparable](s S) map[E]bool {
+	ret := map[E]bool{}
+	for _, e := range s {
+		ret[e] = true
+	}
+	return ret
+}
