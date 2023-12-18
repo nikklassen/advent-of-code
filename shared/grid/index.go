@@ -23,6 +23,13 @@ func (i Index) Sub(i2 Index) Index {
 	}
 }
 
+func FlipDir(dir Index) Index {
+	return Index{
+		X: dir.X * -1,
+		Y: dir.Y * -1,
+	}
+}
+
 func I(x, y int) Index {
 	return Index{X: x, Y: y}
 }

@@ -3,131 +3,181 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"math"
-	"slices"
 
+	"github.com/beefsack/go-astar"
 	"github.com/nikklassen/advent-of-code/shared/grid"
 	"github.com/nikklassen/advent-of-code/shared/pqueue"
+	"github.com/nikklassen/advent-of-code/shared/utils/aocmath"
 	"github.com/nikklassen/advent-of-code/shared/utils/aocslices"
 	"github.com/nikklassen/advent-of-code/shared/utils/aocstrings"
 )
 
 var (
-	//go:embed test_input.txt
+	//go:embed input.txt
 	input string
 )
 
 type node struct {
-	g         *grid.Grid[int]
 	idx       grid.Index
 	dir       grid.Index
-	loss      int
 	runLength int
-	path      []node
 }
 
-func (n node) Less(other node) bool {
-	return n.loss < other.loss
+type pqNode struct {
+	node part1Node
+	loss float64
+	rank float64
 }
 
-func findPath(g grid.Grid[int]) int {
-	minLoss := grid.FromGridSize[int, int](g)
-	minLoss.Fill(math.MaxInt)
-	fringe := pqueue.PriorityQueue[node]{}
+func (n pqNode) Less(other pqNode) bool {
+	return n.rank < other.rank
+}
 
-	fringe.Push(node{})
-	minLoss.Set(grid.Index{}, 0)
+func findPath(start, target part1Node) (int, bool) {
+	minLoss := map[node]float64{}
+	fringe := pqueue.PriorityQueue[pqNode]{}
 
-	var minPath []node
-	target := grid.I(g.LenCols()-1, len(g)-1)
-	visited := map[grid.Index]bool{}
+	fringe.Push(pqNode{
+		node: start,
+		loss: 0,
+	})
+	minLoss[start.node] = 0
 
-outer:
+	visited := map[node]bool{}
+
 	for fringe.Len() > 0 {
-		curr := fringe.Pop()
-		if visited[curr.idx] {
+		currNode := fringe.Pop()
+		curr := currNode.node
+		currLoss := currNode.loss
+		if visited[curr.node] {
 			continue
 		}
-		for _, n := range g.FilterValid(grid.AdjacentNoDiagonal(curr.idx)) {
-			if visited[n] {
+
+		visited[curr.node] = true
+
+		if curr.idx == target.idx {
+			return int(currLoss), true
+		}
+
+		for _, astarN := range curr.PathNeighbors() {
+			n := astarN.(part1Node)
+			if visited[n.node] {
 				continue
 			}
-			dir := n.Sub(curr.idx)
-			runLength := 0
-			if dir == curr.dir {
-				runLength = curr.runLength + 1
-			}
-			if runLength == 3 {
+			loss := currLoss + curr.PathNeighborCost(n)
+			if prev, ok := minLoss[n.node]; ok && loss > prev {
 				continue
 			}
-			loss := curr.loss + g.Get(n)
-			if loss > minLoss.Get(n) {
-				continue
-			}
-			minLoss.Set(n, loss)
-			next := node{
-				idx:       n,
-				dir:       dir,
-				loss:      loss,
-				runLength: runLength,
-			}
-			path := append(slices.Clone(curr.path), next)
-			if n == target {
-				minPath = path
-				break outer
-			}
-			next.path = path
-			fringe.Push(next)
+			minLoss[n.node] = loss
+			fringe.Push(pqNode{n, loss, loss + n.PathEstimatedCost(target)})
 		}
 	}
-	pathSteps := map[grid.Index]node{}
-	for _, p := range minPath {
-		pathSteps[p.idx] = p
-	}
-	for y, row := range g {
-		for x, e := range row {
-			if grid.I(x, y) == target {
-				fmt.Print("*")
-			} else if p, ok := pathSteps[grid.I(x, y)]; ok {
-				c := ""
-				switch p.dir {
-				case grid.Up:
-					c = "^"
-				case grid.Down:
-					c = "v"
-				case grid.Left:
-					c = "<"
-				case grid.Right:
-					c = ">"
-				}
-				fmt.Print(c)
-			} else {
-				fmt.Print(e)
-			}
-		}
-		fmt.Println()
-	}
-	return minLoss.Get(target)
+	return 0, false
 }
 
-func part1(input string) int {
+type part1Node struct {
+	g                          *grid.Grid[int]
+	minRunLength, maxRunLength int
+	node
+}
+
+func (curr part1Node) PathNeighbors() []astar.Pather {
+	var neighbours []astar.Pather
+	for _, n := range curr.g.FilterValid(grid.AdjacentNoDiagonal(curr.idx)) {
+		dir := n.Sub(curr.idx)
+		if dir == grid.FlipDir(curr.dir) {
+			continue
+		}
+		if dir != curr.dir && curr.runLength < curr.minRunLength {
+			continue
+		}
+		runLength := 1
+		if dir == curr.dir {
+			runLength = curr.runLength + 1
+		}
+		if runLength > curr.maxRunLength {
+			continue
+		}
+		neighbours = append(neighbours, part1Node{
+			g:            curr.g,
+			minRunLength: curr.minRunLength,
+			maxRunLength: curr.maxRunLength,
+			node: node{
+				idx:       n,
+				dir:       dir,
+				runLength: runLength,
+			},
+		})
+	}
+	return neighbours
+}
+
+func (curr part1Node) PathNeighborCost(to astar.Pather) float64 {
+	other := to.(part1Node).idx
+	if other == curr.idx {
+		return 0
+	}
+	return float64(curr.g.Get(other))
+}
+
+func (curr part1Node) PathEstimatedCost(to astar.Pather) float64 {
+	idx := curr.idx
+	other := to.(part1Node).idx
+	return float64(aocmath.Abs(other.X-idx.X) + aocmath.Abs(other.Y-idx.Y))
+}
+
+func parseGrid(input string) grid.Grid[int] {
 	var g grid.Grid[int]
 	for _, line := range aocstrings.Lines(input) {
 		g = append(g, aocslices.Map([]byte(line), func(s byte) int {
-			if s > '9' || s < '1' {
-				panic(string([]byte{s}))
-			}
 			return int(s - '0')
 		}))
 	}
-	return findPath(g)
+	return g
 }
 
-// func part2(input string) int {
-// 	return 0
-// }
+func part1(input string) int {
+	g := parseGrid(input)
+	dist, _ := findPath(part1Node{
+		g:            &g,
+		maxRunLength: 3,
+		node:         node{},
+	}, part1Node{
+		g:            &g,
+		maxRunLength: 3,
+		node: node{
+			idx: grid.I(g.LenCols()-1, len(g)-1),
+		},
+	})
+	return dist
+}
+
+func part2(input string) int {
+	g := parseGrid(input)
+	for _, dir := range []grid.Index{grid.Right, grid.Down} {
+		dist, ok := findPath(part1Node{
+			g:            &g,
+			minRunLength: 4,
+			maxRunLength: 10,
+			node: node{
+				dir: dir,
+			},
+		}, part1Node{
+			g:            &g,
+			minRunLength: 4,
+			maxRunLength: 10,
+			node: node{
+				idx: grid.I(g.LenCols()-1, len(g)-1),
+			},
+		})
+		if ok {
+			return dist
+		}
+	}
+	panic("Failed to find target")
+}
 
 func main() {
 	fmt.Printf("part 1: %d\n", part1(input))
-	// fmt.Printf("part 2: %d\n", part2(input))
+	fmt.Printf("part 2: %d\n", part2(input))
 }
