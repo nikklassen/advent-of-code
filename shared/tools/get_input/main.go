@@ -3,18 +3,13 @@ package main
 import (
 	"context"
 	"errors"
-	"flag"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
-)
 
-var (
-	year = flag.Int("year", 2023, "The year to generate a file for")
-	day  = flag.Int("day", 0, "The day to generate a file for")
+	"github.com/nikklassen/advent-of-code/shared/utils/aocstrings"
 )
 
 func downloadFile(w http.ResponseWriter, r *http.Request) {
@@ -27,29 +22,34 @@ func downloadFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	fileName := fmt.Sprintf("%d/day%02d", *year, *day)
-	isTestInput := strings.HasSuffix(r.URL.Path, "test")
-	if isTestInput {
-		fileName += "/test_input.txt"
-	} else {
+	path := r.URL.Query().Get("path")
+	reqURL, isInput := aocstrings.TryTrimSuffix(path, "/input")
+	var year, day int
+	if _, err := fmt.Sscanf(reqURL, "https://adventofcode.com/%d/day/%d", &year, &day); err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to extract day/year:", err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fileName := fmt.Sprintf("%d/day%02d", year, day)
+	if isInput {
 		fileName += "/input.txt"
+	} else {
+		fileName += "/test_input.txt"
 	}
 	if err := os.WriteFile(fileName, data, 0o644); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if isTestInput {
+	if !isInput {
 		fmt.Printf("test ")
 	}
-	fmt.Println("input written")
+	fmt.Println("input written to", fileName)
 }
 
 func main() {
 	ctx := context.Background()
 
-	flag.Parse()
-
-	fmt.Printf("Waiting to write test inputs to %d/day%02d\n", *year, *day)
+	fmt.Println("Waiting for files")
 
 	http.HandleFunc("/", downloadFile)
 	go func() {
