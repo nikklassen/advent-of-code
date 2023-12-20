@@ -32,3 +32,11 @@ func Difference[M ~map[K]V, K, V comparable](a, b M) M {
 	}
 	return ret
 }
+
+func FromSliceFunc[S ~[]V, K comparable, V any](s S, key func(V) K) map[K]V {
+	ret := map[K]V{}
+	for _, e := range s {
+		ret[key(e)] = e
+	}
+	return ret
+}
