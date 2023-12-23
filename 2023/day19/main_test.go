@@ -4,23 +4,22 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/nikklassen/advent-of-code/shared/utils"
 )
 
 func TestIntersect(t *testing.T) {
 	tests := []struct {
 		name       string
-		a, b, want map[string]utils.RangeSet
+		a, b, want partCondition
 	}{
 		{
 			name: "single overlap",
-			a: map[string]utils.RangeSet{
+			a: partCondition{
 				"x": {{End: 10}},
 			},
-			b: map[string]utils.RangeSet{
+			b: partCondition{
 				"x": {{Start: 5, End: 20}},
 			},
-			want: map[string]utils.RangeSet{
+			want: partCondition{
 				"x": {{Start: 5, End: 10}},
 				"m": {{End: maxValue}},
 				"a": {{End: maxValue}},
@@ -29,15 +28,15 @@ func TestIntersect(t *testing.T) {
 		},
 		{
 			name: "double overlap",
-			a: map[string]utils.RangeSet{
+			a: partCondition{
 				"x": {{End: 10}},
 				"m": {{End: 10}},
 			},
-			b: map[string]utils.RangeSet{
+			b: partCondition{
 				"x": {{Start: 5, End: 20}},
 				"m": {{Start: 5, End: 20}},
 			},
-			want: map[string]utils.RangeSet{
+			want: partCondition{
 				"x": {{Start: 5, End: 10}},
 				"m": {{Start: 5, End: 10}},
 				"a": {{End: maxValue}},
@@ -46,10 +45,10 @@ func TestIntersect(t *testing.T) {
 		},
 		{
 			name: "no overlap",
-			a: map[string]utils.RangeSet{
+			a: partCondition{
 				"x": {{End: 10}},
 			},
-			b: map[string]utils.RangeSet{
+			b: partCondition{
 				"x": {{Start: 10, End: 20}},
 			},
 			want: nil,
@@ -62,6 +61,52 @@ func TestIntersect(t *testing.T) {
 				t.Errorf("intersect(%v, %v) got %v, want %v", test.a, test.b, got, test.want)
 			}
 		})
+	}
+}
+
+func TestFlip(t *testing.T) {
+	r := parseRule("x>8:dest")
+	want := parseRule("x<9:dest")
+	if got := flip(r); got != want {
+		t.Errorf("flip(%v) got %v, want %v", r, got, want)
+	}
+	r = parseRule("x<8:dest")
+	want = parseRule("x>7:dest")
+	if got := flip(r); got != want {
+		t.Errorf("flip(%v) got %v, want %v", r, got, want)
+	}
+}
+
+func TestDifference(t *testing.T) {
+	a := partCondition{
+		"x": {{End: 10}},
+	}
+	b := partCondition{
+		"x": {{Start: 5, End: 10}},
+	}
+	d := difference(a, b)
+	want := []partCondition{{
+		"x": {{End: 5}},
+	}}
+	if !cmp.Equal(want, d) {
+		t.Errorf("difference(%s, %s) got %s, want %s", a, b, d, want)
+	}
+	a = partCondition{
+		"x": {{End: 10}},
+		"m": {{End: 10}},
+	}
+	b = partCondition{
+		"x": {{Start: 5, End: 10}},
+		"m": {{Start: 5, End: 10}},
+	}
+	d = difference(a, b)
+	want = []partCondition{
+		{"x": {{End: 5}}, "m": {{End: 5}}},
+		{"x": {{End: 5}}, "m": {{Start: 5, End: 10}}},
+		{"x": {{Start: 5, End: 10}}, "m": {{Start: 0, End: 5}}},
+	}
+	if !cmp.Equal(want, d) {
+		t.Errorf("difference(%s, %s) got %s, want %s", a, b, d, want)
 	}
 }
 

@@ -7,4 +7,7 @@ require (
 	golang.org/x/exp v0.0.0-20231127185646-65229373498e
 )
 
-require github.com/beefsack/go-astar v0.0.0-20200827232313-4ecf9e304482 // indirect
+require (
+	github.com/beefsack/go-astar v0.0.0-20200827232313-4ecf9e304482 // indirect
+	golang.org/x/text v0.14.0 // indirect
+)

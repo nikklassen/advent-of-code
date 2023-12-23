@@ -59,6 +59,20 @@ func (r Range) Union(other Range) RangeSet {
 	return RangeSet{{r.Start, max(r.End, other.End)}}
 }
 
+func (r Range) Difference(other Range) RangeSet {
+	if r.Start > other.End || r.End < other.Start {
+		return RangeSet{r}
+	}
+	var rs RangeSet
+	if other.Start > r.Start {
+		rs = append(rs, Range{r.Start, other.Start})
+	}
+	if other.End < r.End {
+		rs = append(rs, Range{r.End, other.End})
+	}
+	return rs
+}
+
 type RangeSet []Range
 
 func (rs RangeSet) Len() int {
@@ -66,20 +80,17 @@ func (rs RangeSet) Len() int {
 }
 
 func (rs RangeSet) Intersect(other RangeSet) RangeSet {
-	if len(rs) == 0 || len(other) == 0 {
-		return nil
+	var ret RangeSet
+	for _, a := range rs {
+		for _, b := range other {
+			ma := max(a.Start, b.Start)
+			mi := min(a.End, b.End)
+			if ma < mi {
+				ret = append(ret, Range{Start: ma, End: mi})
+			}
+		}
 	}
-	ret := rs[0]
-	for _, r := range rs[1:] {
-		ret = ret.Intersect(r)
-	}
-	for _, r := range other {
-		ret = ret.Intersect(r)
-	}
-	if ret == (Range{}) {
-		return nil
-	}
-	return RangeSet{ret}
+	return ret
 }
 
 func (rs RangeSet) Union(other RangeSet) RangeSet {
@@ -101,5 +112,17 @@ func (rs RangeSet) Union(other RangeSet) RangeSet {
 		}
 	}
 	ret = append(ret, sorted...)
+	return ret
+}
+
+func (rs RangeSet) Difference(other RangeSet) RangeSet {
+	ret := rs
+	for _, j := range other {
+		var newRet RangeSet
+		for _, i := range ret {
+			newRet = append(newRet, i.Difference(j)...)
+		}
+		ret = newRet
+	}
 	return ret
 }

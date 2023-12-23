@@ -1,6 +1,7 @@
 package aocstrings
 
 import (
+	"fmt"
 	"slices"
 	"strconv"
 	"strings"
@@ -62,4 +63,15 @@ func Set(s string, i int, r rune) string {
 		ret += s[i+1:]
 	}
 	return ret
+}
+
+func PadLeft(s string, n int, c rune) string {
+	return fmt.Sprintf("%"+string(c)+strconv.Itoa(n)+"s", s)
+}
+
+func PadRight(s string, n int, c rune) string {
+	if len(s) < n {
+		s += strings.Repeat(string(c), n-len(s))
+	}
+	return s
 }
