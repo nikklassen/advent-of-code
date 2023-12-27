@@ -53,7 +53,7 @@ func parseRule(line string) rule {
 	value := aocstrings.MustAtoi(line[idx+1:])
 	var values utils.Range
 	if op == "<" {
-		values = utils.Range{Start: 0, End: value}
+		values = utils.Range{Start: 1, End: value}
 	} else {
 		values = utils.Range{Start: value + 1, End: maxValue}
 	}
@@ -137,7 +137,7 @@ func flip(r rule) rule {
 	if r.values.Start == 0 {
 		return rule{r.category, utils.Range{Start: r.values.End, End: maxValue}, r.dest}
 	}
-	return rule{r.category, utils.Range{Start: 0, End: r.values.Start}, r.dest}
+	return rule{r.category, utils.Range{Start: 1, End: r.values.Start}, r.dest}
 }
 
 func merge(a, b rule) (rule, bool) {
@@ -190,9 +190,9 @@ func findAllAccepted(wm map[string]workflow, curr string, path []rule) []partCon
 			slices.SortFunc(newPath, func(a, b rule) int {
 				return cmp.Compare(slices.Index(allAttrs, a.category), slices.Index(allAttrs, b.category))
 			})
-			fmt.Println("accepted path:", newPath)
+			// fmt.Println("accepted path:", newPath)
 			merged := mergeAll(newPath)
-			fmt.Println("merged:", merged)
+			// fmt.Println("merged:", merged)
 			ret = append(ret, merged)
 			continue
 		} else if r.dest == "R" {
@@ -209,11 +209,11 @@ func intersect(m1, m2 partCondition) partCondition {
 	for _, k := range allAttrs {
 		v1, ok := m1[k]
 		if !ok {
-			v1 = utils.RangeSet{{End: maxValue}}
+			v1 = utils.RangeSet{{Start: 1, End: maxValue}}
 		}
 		v2, ok := m2[k]
 		if !ok {
-			v2 = utils.RangeSet{{End: maxValue}}
+			v2 = utils.RangeSet{{Start: 1, End: maxValue}}
 		}
 		int := v1.Intersect(v2)
 		if len(int) == 0 {
@@ -299,6 +299,122 @@ func printMap(m partCondition) {
 	fmt.Println()
 }
 
+// func part2(input string) int {
+// 	paras := aocstrings.Paragraphs(input)
+// 	workflows := aocslices.Map(aocstrings.Lines(paras[0]), parseWorkflow)
+// 	workflowMap := aocmaps.FromSliceFunc(workflows, func(w workflow) string {
+// 		return w.label
+// 	})
+// 	all := findAllAccepted(workflowMap, "in", nil)
+// 	for _, m := range all {
+// 		fmt.Println(m)
+// 	}
+// 	for _, a := range all {
+// 		for _, attr := range allAttrs {
+// 			if _, ok := a[attr]; !ok {
+// 				a[attr] = utils.RangeSet{{End: maxValue}}
+// 			}
+// 		}
+// 	}
+// 	fmt.Println()
+// 	var prev []partCondition
+// 	for !slices.EqualFunc(prev, all, func(a, b partCondition) bool {
+// 		for _, attr := range allAttrs {
+// 			if !slices.Equal(a[attr], b[attr]) {
+// 				return false
+// 			}
+// 		}
+// 		return true
+// 	}) {
+// 		prev = all
+// 		var i, j int
+// 		var a, b partCondition
+// 		var intersection partCondition
+// 	findLoop:
+// 		for i, a = range all {
+// 			for j = i + 1; j < len(all); j++ {
+// 				b = all[j]
+// 				intersection = intersect(a, b)
+// 				if len(intersection) > 0 {
+// 					break findLoop
+// 				}
+// 			}
+// 		}
+// 		if len(intersection) == 0 {
+// 			break
+// 		}
+// 		fmt.Println("found intersection of ")
+// 		printMap(a)
+// 		fmt.Println("and")
+// 		printMap(b)
+// 		fmt.Println("=")
+// 		printMap(intersection)
+// 		fmt.Println()
+// 		nextAll := slices.Clone(all[:i])
+// 		nextAll = append(nextAll, difference(a, intersection)...)
+// 		nextAll = append(nextAll, all[i+1:j]...)
+// 		nextAll = append(nextAll, difference(b, intersection)...)
+// 		nextAll = append(nextAll, all[i+1:j]...)
+// 		nextAll = append(nextAll, intersection)
+// 		nextAll = append(nextAll, all[j+1:]...)
+// 		all = nextAll
+// 	}
+// 	fmt.Println("All:")
+// 	for _, a := range all {
+// 		printMap(a)
+// 	}
+// 	tot := 0
+// 	for _, a := range all {
+// 		tot += product(a)
+// 	}
+// 	p := message.NewPrinter(language.English)
+// 	want := 167409079868000
+// 	p.Printf("want: % 20d\n", want)
+// 	p.Printf("got:  % 20d\n", tot)
+// 	return tot
+// }
+
+func ranges(attr string, all []partCondition) []utils.Range {
+	pointSet := map[int]bool{}
+	for _, m := range all {
+		for _, r := range m[attr] {
+			pointSet[r.Start] = true
+			pointSet[r.End-1] = true
+		}
+	}
+	points := maps.Keys(pointSet)
+	slices.Sort(points)
+	prev := points[0]
+	var ret []utils.Range
+	for _, p := range points[1:] {
+		ret = append(ret, utils.Range{Start: prev, End: p + 1})
+		prev = p + 1
+	}
+	// ret = append(ret, utils.Range{Start: prev, End: maxValue})
+	return ret
+}
+
+func countAll(attrs []string, ms []partCondition) int {
+	if len(attrs) == 0 {
+		return 1
+	}
+	attr := attrs[0]
+	fmt.Println("attr", attr)
+	rs := ranges(attr, ms)
+	fmt.Println(rs)
+	tot := 0
+	for _, r := range rs {
+		var next []partCondition
+		for _, m := range ms {
+			if m[attr].Intersect(utils.RangeSet{r}).Len() > 0 {
+				next = append(next, m)
+			}
+		}
+		tot += r.Len() * len(next) * countAll(attrs[1:], next)
+	}
+	return tot
+}
+
 func part2(input string) int {
 	paras := aocstrings.Paragraphs(input)
 	workflows := aocslices.Map(aocstrings.Lines(paras[0]), parseWorkflow)
@@ -307,74 +423,22 @@ func part2(input string) int {
 	})
 	all := findAllAccepted(workflowMap, "in", nil)
 	for _, m := range all {
+		for _, attr := range allAttrs {
+			if r, ok := m[attr]; !ok || r.Len() == 0 {
+				m[attr] = utils.RangeSet{{Start: 1, End: maxValue}}
+			}
+		}
+	}
+	for _, m := range all {
 		fmt.Println(m)
 	}
-	for _, a := range all {
-		for _, attr := range allAttrs {
-			if _, ok := a[attr]; !ok {
-				a[attr] = utils.RangeSet{{End: maxValue}}
-			}
-		}
-	}
 	fmt.Println()
-	var prev []partCondition
-	for !slices.EqualFunc(prev, all, func(a, b partCondition) bool {
-		for _, attr := range allAttrs {
-			if !slices.Equal(a[attr], b[attr]) {
-				return false
-			}
-		}
-		return true
-	}) {
-		prev = all
-		var i, j int
-		var a, b partCondition
-		var intersection partCondition
-	findLoop:
-		for i, a = range all {
-			for j = i + 1; j < len(all); j++ {
-				b = all[j]
-				intersection = intersect(a, b)
-				if len(intersection) > 0 {
-					break findLoop
-				}
-			}
-		}
-		if len(intersection) == 0 {
-			break
-		}
-		fmt.Println("found intersection of ")
-		printMap(a)
-		fmt.Println("and")
-		printMap(b)
-		fmt.Println("=")
-		printMap(intersection)
-		fmt.Println()
-		nextAll := slices.Clone(all[:i])
-		nextAll = append(nextAll, difference(a, intersection)...)
-		nextAll = append(nextAll, all[i+1:j]...)
-		nextAll = append(nextAll, difference(b, intersection)...)
-		nextAll = append(nextAll, all[i+1:j]...)
-		nextAll = append(nextAll, intersection)
-		nextAll = append(nextAll, all[j+1:]...)
-		all = nextAll
-	}
-	fmt.Println("All:")
-	for _, a := range all {
-		printMap(a)
-	}
-	tot := 0
-	for _, a := range all {
-		tot += product(a)
-	}
-	p := message.NewPrinter(language.English)
-	want := 167409079868000
-	p.Printf("want: % 20d\n", want)
-	p.Printf("got:  % 20d\n", tot)
-	return tot
+	return countAll(allAttrs, all)
 }
 
 func main() {
 	// fmt.Printf("part 1: %d\n", part1(input))
-	fmt.Printf("part 2: %d\n", part2(input))
+	p := message.NewPrinter(language.English)
+	p.Printf("part 2: %d\n", part2(input))
+	p.Printf("%d\n", 167409079868000)
 }
