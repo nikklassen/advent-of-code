@@ -1,2 +1,4 @@
 .session
 target
+main.wasm
+wasm/wasm_exec.js

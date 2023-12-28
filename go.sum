@@ -6,3 +6,5 @@ golang.org/x/exp v0.0.0-20231127185646-65229373498e h1:Gvh4YaCaXNs6dKTlfgismwWZK
 golang.org/x/exp v0.0.0-20231127185646-65229373498e/go.mod h1:iRJReGqOEeBhDZGkGbynYwcHlctCvnjTYIamk7uXpHI=
 golang.org/x/text v0.14.0 h1:ScX5w1eTa3QqT8oi6+ziP7dTV1S2+ALU0bI+0zXKWiQ=
 golang.org/x/text v0.14.0/go.mod h1:18ZOQIKpY8NJVqYksKHtTdi31H5itFRjB5/qKTNYzSU=
+honnef.co/go/js/dom/v2 v2.0.0-20231112215516-51f43a291193 h1:qc3CbLs/1Tb3N7yIKKph/UbUoyI8YQfTF1apIvqX/I8=
+honnef.co/go/js/dom/v2 v2.0.0-20231112215516-51f43a291193/go.mod h1:+JtEcbinwR4znM12aluJ3WjKgvhDPKPQ8hnP4YM+4jI=
