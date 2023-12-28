@@ -4,6 +4,8 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"strings"
 	"unicode"
 
@@ -14,8 +16,6 @@ import (
 )
 
 var (
-	//go:embed input.txt
-	input      string
 	digitWords = []string{
 		"one",
 		"two",
@@ -74,6 +74,21 @@ func getValueAndHighlight(word string) (int, string) {
 	return num, sb.String()
 }
 
+func readInput() (string, error) {
+	resp, err := http.Get("/2023/day01/input.txt")
+	if err != nil {
+		return "", err
+	}
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	if err := resp.Body.Close(); err != nil {
+		return "", err
+	}
+	return string(data), nil
+}
+
 func main() {
 	document := dom.GetWindow().Document().(dom.HTMLDocument)
 
@@ -81,35 +96,29 @@ func main() {
 
 	head := document.Head()
 	style := document.CreateElement("style").(*dom.HTMLStyleElement)
-	text := document.CreateTextNode(`
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
-
-* {
-  font-family: 'Roboto', sans-serif;
-}
-
+	style.SetTextContent(`
 span {
   color: red;
 }`)
-	style.AppendChild(text)
 	head.AppendChild(style)
 
-	var lines []*dom.HTMLDivElement
+	d := document.QuerySelector("#content")
 
-	d := document.CreateElement("div")
-	body.AppendChild(d)
-	for _, line := range aocstrings.Lines(input) {
-		s := document.CreateElement("div").(*dom.HTMLDivElement)
-		lines = append(lines, s)
-		s.Set("innerText", line)
-		d.AppendChild(s)
+	input, err := readInput()
+	if err != nil {
+		panic(err.Error())
 	}
 
+	d.SetTextContent("")
+
 	var tot int
-	for _, s := range lines {
-		value, highlighted := getValueAndHighlight(s.Get("innerText").String())
+	for _, line := range aocstrings.Lines(input) {
+		s := document.CreateElement("div").(*dom.HTMLDivElement)
+
+		value, highlighted := getValueAndHighlight(line)
 		tot += value
 		s.SetInnerHTML(highlighted)
+		d.AppendChild(s)
 	}
 
 	body.InsertBefore(document.CreateTextNode(fmt.Sprintf("Total: %d", tot)), body.FirstChild())
